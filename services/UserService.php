@@ -1,9 +1,12 @@
 <?php
 // ==========================================================
 // PROYECTO: Sistema de Alquiler de Bicicletas / Servicios SOAP
-// MÓDULO: Lógica de Servicios - Entidad Usuario
+// MÓDULO: Lógica de Servicios - Entidad Usuario Protegida con WS-Security
 // ARCHIVO: services/UserService.php
 // ==========================================================
+
+require_once __DIR__ . '/../token/ws_security.php';
+require_once __DIR__ . '/../helpers/utf8_helper.php';
 
 /**
  * Función auxiliar para retornar '-1' compatible con NuSOAP
@@ -16,17 +19,23 @@ if (!function_exists('user_soap_error')) {
 }
 
 /**
- * 1. Insertar Usuario
- * Valida que los campos obligatorios no sean nulos ni vacíos. Retorna -1 ante error.
+ * 1. Insertar Usuario (PROTEGIDO POR WS-SECURITY)
+ * Valida la cabecera WS-Security. Si falta o es incorrecta, se bloquea con -1.
+ * Encripta la contraseña mediante password_hash ($password, PASSWORD_DEFAULT) (Bcrypt).
  *
- * @param array $data ['user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone']
- * @return string Mensaje de éxito o -1 en caso de error/validación fallida.
+ * @param array $data ['user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone', 'password']
+ * @return string Mensaje de confirmación o -1 ante error/autenticación fallida.
  */
 function InsertUserService($data) {
     global $pdo;
 
+    // Validación obligatoria de WS-Security en cabecera
+    if (!wsse_authenticate()) {
+        return "-1";
+    }
+
     if (!$pdo) {
-        return -1;
+        return "-1";
     }
 
     // Normalizar a UTF-8
@@ -34,22 +43,26 @@ function InsertUserService($data) {
 
     // Validación de estructura
     if (!is_array($data) || empty($data)) {
-        return -1;
+        return "-1";
     }
 
-    // Validación de campos obligatorios (no vacíos ni nulos)
+    // Validación de campos obligatorios (incluyendo contraseña)
     if (
         !isset($data['user_name']) || trim($data['user_name']) === '' ||
         !isset($data['lastname']) || trim($data['lastname']) === '' ||
         !isset($data['doc_type_id']) || !is_numeric($data['doc_type_id']) || intval($data['doc_type_id']) <= 0 ||
-        !isset($data['num_doc']) || trim($data['num_doc']) === ''
+        !isset($data['num_doc']) || trim($data['num_doc']) === '' ||
+        !isset($data['password']) || trim($data['password']) === ''
     ) {
-        return -1;
+        return "-1";
     }
 
     try {
-        $sql = "INSERT INTO user (user_name, lastname, doc_type_id, num_doc, address, phone, created_date)
-                VALUES (:user_name, :lastname, :doc_type_id, :num_doc, :address, :phone, NOW())";
+        // Encriptar la contraseña mediante Bcrypt (password_hash)
+        $hashedPassword = password_hash(trim($data['password']), PASSWORD_DEFAULT);
+
+        $sql = "INSERT INTO user (user_name, lastname, doc_type_id, num_doc, address, phone, password, created_date)
+                VALUES (:user_name, :lastname, :doc_type_id, :num_doc, :address, :phone, :password, NOW())";
 
         $stmt = $pdo->prepare($sql);
         $user_name   = trim($data['user_name']);
@@ -65,34 +78,40 @@ function InsertUserService($data) {
         $stmt->bindParam(':num_doc', $num_doc);
         $stmt->bindParam(':address', $address);
         $stmt->bindParam(':phone', $phone);
+        $stmt->bindParam(':password', $hashedPassword);
 
         $stmt->execute();
         return "Se ha guardado correctamente";
 
     } catch (PDOException $e) {
-        return -1;
+        return "-1";
     }
 }
 
 /**
- * 2. Actualizar Usuario
- * Valida ID y campos obligatorios, verifica existencia previa y actualiza en MySQL.
- * Retorna -1 ante error o si el usuario no existe.
+ * 2. Actualizar Usuario (PROTEGIDO POR WS-SECURITY)
+ * Valida la cabecera WS-Security. Si falta o es incorrecta, se bloquea con -1.
+ * Si se envía una nueva contraseña, la actualiza encriptada con password_hash.
  *
- * @param array $data ['id', 'user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone']
+ * @param array $data ['id', 'user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone', 'password' (opcional)]
  * @return string Mensaje de confirmación o -1 en caso de fallo.
  */
 function UpdateUserService($data) {
     global $pdo;
 
+    // Validación obligatoria de WS-Security en cabecera
+    if (!wsse_authenticate()) {
+        return "-1";
+    }
+
     if (!$pdo) {
-        return -1;
+        return "-1";
     }
 
     $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
 
     if (!is_array($data) || empty($data)) {
-        return -1;
+        return "-1";
     }
 
     // Validación de ID y campos obligatorios
@@ -103,7 +122,7 @@ function UpdateUserService($data) {
         !isset($data['doc_type_id']) || !is_numeric($data['doc_type_id']) || intval($data['doc_type_id']) <= 0 ||
         !isset($data['num_doc']) || trim($data['num_doc']) === ''
     ) {
-        return -1;
+        return "-1";
     }
 
     try {
@@ -113,7 +132,15 @@ function UpdateUserService($data) {
         $check = $pdo->prepare("SELECT id FROM user WHERE id = :id");
         $check->execute(array(':id' => $id));
         if ($check->rowCount() === 0) {
-            return -1;
+            return "-1";
+        }
+
+        // Si se incluye contraseña, encriptarla con Bcrypt
+        $updatePassSql = "";
+        $hashedPassword = null;
+        if (isset($data['password']) && trim($data['password']) !== '') {
+            $hashedPassword = password_hash(trim($data['password']), PASSWORD_DEFAULT);
+            $updatePassSql = ", password = :password";
         }
 
         $sql = "UPDATE user SET
@@ -123,6 +150,7 @@ function UpdateUserService($data) {
                     num_doc     = :num_doc,
                     address     = :address,
                     phone       = :phone
+                    $updatePassSql
                 WHERE id = :id";
 
         $stmt = $pdo->prepare($sql);
@@ -141,18 +169,21 @@ function UpdateUserService($data) {
         $stmt->bindParam(':address', $address);
         $stmt->bindParam(':phone', $phone);
 
+        if ($hashedPassword !== null) {
+            $stmt->bindParam(':password', $hashedPassword);
+        }
+
         $stmt->execute();
         return "Usuario actualizado correctamente";
 
     } catch (PDOException $e) {
-        return -1;
+        return "-1";
     }
 }
 
 /**
- * 3. Eliminar Usuario
- * Valida ID, comprueba existencia y elimina el registro de la tabla user.
- * Retorna -1 ante error o si el usuario no existe.
+ * 3. Eliminar Usuario (PROTEGIDO POR WS-SECURITY)
+ * Valida la cabecera WS-Security. Si falta o es incorrecta, se bloquea con -1.
  *
  * @param int|array $id ID del usuario
  * @return string Mensaje de confirmación o -1 en caso de fallo.
@@ -160,8 +191,13 @@ function UpdateUserService($data) {
 function DeleteUserService($id) {
     global $pdo;
 
+    // Validación obligatoria de WS-Security en cabecera
+    if (!wsse_authenticate()) {
+        return "-1";
+    }
+
     if (!$pdo) {
-        return -1;
+        return "-1";
     }
 
     if (is_array($id)) {
@@ -170,7 +206,7 @@ function DeleteUserService($id) {
 
     // Validación de ID numérico y mayor que 0
     if (empty($id) || !is_numeric($id) || intval($id) <= 0) {
-        return -1;
+        return "-1";
     }
 
     try {
@@ -180,7 +216,7 @@ function DeleteUserService($id) {
         $check = $pdo->prepare("SELECT id FROM user WHERE id = :id");
         $check->execute(array(':id' => $userId));
         if ($check->rowCount() === 0) {
-            return -1;
+            return "-1";
         }
 
         $stmt = $pdo->prepare("DELETE FROM user WHERE id = :id");
@@ -190,19 +226,25 @@ function DeleteUserService($id) {
         return "Usuario eliminado correctamente";
 
     } catch (PDOException $e) {
-        return -1;
+        return "-1";
     }
 }
 
 /**
- * 4. Seleccionar Usuario por ID
- * Consulta un usuario por su ID primario. Si no existe o ID inválido, retorna -1.
+ * 4. Seleccionar Usuario por ID (PROTEGIDO POR WS-SECURITY)
+ * Valida la cabecera WS-Security. Si falta o es incorrecta, se bloquea retornando -1.
+ * Seguridad: Excluye de la respuesta las contraseñas y tokens.
  *
  * @param int|array $id ID del usuario
  * @return array|soapval Datos del usuario o -1 si falla / no existe.
  */
 function SelectUserService($id) {
     global $pdo;
+
+    // Validación obligatoria de WS-Security en cabecera
+    if (!wsse_authenticate()) {
+        return user_soap_error();
+    }
 
     if (!$pdo) {
         return user_soap_error();
@@ -218,6 +260,7 @@ function SelectUserService($id) {
     }
 
     try {
+        // Exclusión estricta de 'password', 'token' y 'token_date' por seguridad
         $stmt = $pdo->prepare("SELECT id, user_name, lastname, doc_type_id, num_doc, address, phone, created_date FROM user WHERE id = :id");
         $stmt->execute(array(':id' => intval($id)));
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -243,8 +286,9 @@ function SelectUserService($id) {
 }
 
 /**
- * 5. Listar Todos los Usuarios
- * Retorna todos los usuarios registrados en la tabla user. Si está vacía o hay error, retorna -1.
+ * 5. Listar Todos los Usuarios (PROTEGIDO POR WS-SECURITY)
+ * Valida la cabecera WS-Security. Si falta o es incorrecta, se bloquea retornando -1.
+ * Seguridad: Excluye de la lista las contraseñas y tokens.
  *
  * @param mixed $param Parámetro opcional
  * @return array|soapval Lista de usuarios o -1 si está vacía / falla.
@@ -252,11 +296,17 @@ function SelectUserService($id) {
 function ListUsersService($param = null) {
     global $pdo;
 
+    // Validación obligatoria de WS-Security en cabecera
+    if (!wsse_authenticate()) {
+        return user_soap_error();
+    }
+
     if (!$pdo) {
         return user_soap_error();
     }
 
     try {
+        // Exclusión estricta de 'password', 'token' y 'token_date'
         $stmt = $pdo->query("SELECT id, user_name, lastname, doc_type_id, num_doc, address, phone, created_date FROM user ORDER BY id ASC");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

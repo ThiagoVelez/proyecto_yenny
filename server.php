@@ -21,6 +21,9 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/types/soap_types.php';
 
 // 6. Funciones que procesan y guardan en MySQL (Lógica de Servicios)
+require_once __DIR__ . '/token/token.php';
+require_once __DIR__ . '/token/ws_security.php';
+require_once __DIR__ . '/services/AuthService.php';
 require_once __DIR__ . '/services/BicicletaService.php';
 require_once __DIR__ . '/services/ClienteService.php';
 require_once __DIR__ . '/services/AlquilerService.php';
@@ -31,5 +34,6 @@ require_once __DIR__ . '/routes/soap_register.php';
 
 // 7. Procesar y responder a la solicitud SOAP
 $POST_DATA = file_get_contents("php://input");
+$GLOBALS['RAW_POST_DATA'] = $POST_DATA;
 $server->service($POST_DATA);
 exit();

@@ -211,15 +211,50 @@ VALUES (
 ON DUPLICATE KEY UPDATE
     `name` = new.`name`;
 
--- Tabla de Usuarios
+-- Tabla de Usuarios (Fase Token Criptográfico & WS-Security)
 CREATE TABLE IF NOT EXISTS `user` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `user_name` VARCHAR(100) NOT NULL COMMENT 'Nombre del usuario',
+    `user_name` VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre del usuario / login',
     `lastname` VARCHAR(100) NOT NULL COMMENT 'Apellido del usuario',
     `doc_type_id` INT NOT NULL COMMENT 'ID del tipo de documento',
     `num_doc` VARCHAR(50) NOT NULL COMMENT 'Número de documento',
     `address` VARCHAR(255) DEFAULT NULL COMMENT 'Dirección de residencia',
     `phone` VARCHAR(30) DEFAULT NULL COMMENT 'Número de teléfono/contacto',
+    `password` VARCHAR(255) NOT NULL COMMENT 'Contraseña encriptada (Bcrypt o SHA-256)',
+    `token` VARCHAR(64) DEFAULT NULL COMMENT 'Token criptográfico de 64 caracteres hex',
+    `token_date` DATETIME DEFAULT NULL COMMENT 'Fecha y hora de generación del token (NOW())',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro',
+    INDEX `idx_user_token` (`token`),
+    INDEX `idx_user_login` (`user_name`),
     CONSTRAINT `fk_user_doc_type` FOREIGN KEY (`doc_type_id`) REFERENCES `document_type` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- Usuarios Iniciales con Contraseñas Encriptadas
+INSERT INTO `user` (`user_name`, `lastname`, `doc_type_id`, `num_doc`, `address`, `phone`, `password`, `token`, `token_date`)
+VALUES
+(
+    'admin',
+    'Sistema',
+    1,
+    '10101010',
+    'Calle 100 # 10-20',
+    '3001112233',
+    '$2y$10$X86/QeI4rX4B51wB6M0DqONbCskV2Y4/8u5x6n7U8dYh7b2hS6VqG', -- Bcrypt para 'admin123'
+    NULL,
+    NULL
+),
+(
+    'operador',
+    'Técnico',
+    1,
+    '20202020',
+    'Carrera 15 # 45-30',
+    '3104445566',
+    SHA2('operador123', 256), -- SHA-256 de MySQL para 'operador123'
+    NULL,
+    NULL
+) AS new
+ON DUPLICATE KEY UPDATE
+    `password` = new.`password`,
+    `address`  = new.`address`,
+    `phone`    = new.`phone`;

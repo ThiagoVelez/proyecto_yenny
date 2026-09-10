@@ -133,7 +133,63 @@ $server->register(
 );
 
 // ----------------------------------------------------------
-// 5.4 OPERACIONES DE USUARIOS (CRUD COMPLETO)
+// 5.4 SERVICIOS DE AUTENTICACIÓN Y TOKEN CRIPTOGRÁFICO
+// ----------------------------------------------------------
+
+// 1. LoginService
+$server->register(
+    'LoginService',
+    array(
+        'user_name' => 'xsd:string',
+        'password'  => 'xsd:string'
+    ),
+    array('return' => 'xsd:string'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Autentica las credenciales, genera un token criptográfico de 64 hex y lo almacena con NOW()'
+);
+
+$server->register(
+    'login',
+    array(
+        'user_name' => 'xsd:string',
+        'password'  => 'xsd:string'
+    ),
+    array('return' => 'xsd:string'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Alias en español para LoginService'
+);
+
+// 2. ValidateTokenService
+$server->register(
+    'ValidateTokenService',
+    array('token' => 'xsd:string'),
+    array('return' => 'xsd:string'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Valida si un token criptográfico existe y está activo en la base de datos'
+);
+
+$server->register(
+    'validarToken',
+    array('token' => 'xsd:string'),
+    array('return' => 'xsd:string'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Alias en español para ValidateTokenService'
+);
+
+// ----------------------------------------------------------
+// 5.5 OPERACIONES DE USUARIOS (CRUD COMPLETO - PROTEGIDO CON WS-SECURITY)
 // ----------------------------------------------------------
 
 // 1. Insertar Usuario

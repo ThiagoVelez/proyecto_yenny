@@ -77,7 +77,8 @@ $server->wsdl->addComplexType(
         'doc_type_id' => array('name' => 'doc_type_id', 'type' => 'xsd:int'),
         'num_doc'     => array('name' => 'num_doc',     'type' => 'xsd:string'),
         'address'     => array('name' => 'address',     'type' => 'xsd:string'),
-        'phone'       => array('name' => 'phone',       'type' => 'xsd:string')
+        'phone'       => array('name' => 'phone',       'type' => 'xsd:string'),
+        'password'    => array('name' => 'password',    'type' => 'xsd:string')
     )
 );
 
@@ -95,7 +96,8 @@ $server->wsdl->addComplexType(
         'doc_type_id' => array('name' => 'doc_type_id', 'type' => 'xsd:int'),
         'num_doc'     => array('name' => 'num_doc',     'type' => 'xsd:string'),
         'address'     => array('name' => 'address',     'type' => 'xsd:string'),
-        'phone'       => array('name' => 'phone',       'type' => 'xsd:string')
+        'phone'       => array('name' => 'phone',       'type' => 'xsd:string'),
+        'password'    => array('name' => 'password',    'type' => 'xsd:string')
     )
 );
 
