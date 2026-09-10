@@ -67,6 +67,7 @@ CREATE TABLE `alquileres` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 -- Restricciones de Clave Foránea
+
 CONSTRAINT `fk_alquiler_bicicleta` 
         FOREIGN KEY (`bicicleta_id`) 
         REFERENCES `bicicletas` (`id`) 
@@ -230,31 +231,41 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- Usuarios Iniciales con Contraseñas Encriptadas
-INSERT INTO `user` (`user_name`, `lastname`, `doc_type_id`, `num_doc`, `address`, `phone`, `password`, `token`, `token_date`)
-VALUES
-(
-    'admin',
-    'Sistema',
-    1,
-    '10101010',
-    'Calle 100 # 10-20',
-    '3001112233',
-    '$2y$10$X86/QeI4rX4B51wB6M0DqONbCskV2Y4/8u5x6n7U8dYh7b2hS6VqG', -- Bcrypt para 'admin123'
-    NULL,
-    NULL
-),
-(
-    'operador',
-    'Técnico',
-    1,
-    '20202020',
-    'Carrera 15 # 45-30',
-    '3104445566',
-    SHA2('operador123', 256), -- SHA-256 de MySQL para 'operador123'
-    NULL,
-    NULL
-) AS new
+INSERT INTO
+    `user` (
+        `user_name`,
+        `lastname`,
+        `doc_type_id`,
+        `num_doc`,
+        `address`,
+        `phone`,
+        `password`,
+        `token`,
+        `token_date`
+    )
+VALUES (
+        'admin',
+        'Sistema',
+        1,
+        '10101010',
+        'Calle 100 # 10-20',
+        '3001112233',
+        '$2y$10$X86/QeI4rX4B51wB6M0DqONbCskV2Y4/8u5x6n7U8dYh7b2hS6VqG', -- Bcrypt para 'admin123'
+        NULL,
+        NULL
+    ),
+    (
+        'operador',
+        'Técnico',
+        1,
+        '20202020',
+        'Carrera 15 # 45-30',
+        '3104445566',
+        SHA2('operador123', 256), -- SHA-256 de MySQL para 'operador123'
+        NULL,
+        NULL
+    ) AS new
 ON DUPLICATE KEY UPDATE
     `password` = new.`password`,
-    `address`  = new.`address`,
-    `phone`    = new.`phone`;
+    `address` = new.`address`,
+    `phone` = new.`phone`;
