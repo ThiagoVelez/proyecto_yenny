@@ -10,7 +10,7 @@
  * Implementa exactamente la función indicada en la diapositiva de la profesora:
  * $token = bin2hex(random_bytes(32));
  * 
- * random_bytes(32) genera 32 bytes criptográficamente seguros y 
+ * random_bytes(32) genera 32 bytes criptográficamente y 
  * bin2hex() los convierte en una cadena legible de 64 caracteres hexadecimales.
  *
  * @return string Token de 64 caracteres hexadecimales

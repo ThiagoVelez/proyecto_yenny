@@ -2,7 +2,7 @@
 /**
  * ==========================================================
  * PROYECTO: Servidor SOAP Modular - Fase Token & WS-Security
- * ARCHIVO: test_token.php
+ * ARCHIVO: token/test_token.php
  * DESCRIPCIÓN: Suite de pruebas automatizadas del proyecto unificado:
  *   1. Generación de Token criptográfico en token/token.php ($token = bin2hex(random_bytes(32)))
  *   2. Verificación dual de contraseñas (Bcrypt y MySQL SHA-256) en token/ws_security.php
@@ -35,8 +35,8 @@ function assertTest($description, $condition) {
 // ----------------------------------------------------------
 // 1. CARGAR MÓDULOS DE LA CARPETA token/
 // ----------------------------------------------------------
-require_once __DIR__ . '/token/token.php';
-require_once __DIR__ . '/token/ws_security.php';
+require_once __DIR__ . '/token.php';
+require_once __DIR__ . '/ws_security.php';
 
 // ----------------------------------------------------------
 // PRUEBA 1: Generación del Token Criptográfico (Especificación de Clase)
@@ -105,9 +105,9 @@ assertTest("Detección de ausencia de cabecera WS-Security (retorna null)", $ext
 // ----------------------------------------------------------
 // PRUEBA 4: Comprobación de Servicios con Base de Datos (MySQL)
 // ----------------------------------------------------------
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/services/AuthService.php';
-require_once __DIR__ . '/services/UserService.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../services/AuthService.php';
+require_once __DIR__ . '/../services/UserService.php';
 
 if ($pdo) {
     echo "\n--- Probando servicios contra MySQL (sistema_bicicletas) ---\n";
