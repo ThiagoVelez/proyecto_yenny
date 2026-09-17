@@ -56,7 +56,7 @@ function consultarBicicleta($codigo) {
     global $pdo;
 
     if (!$pdo) {
-        return "Error: La conexión a la base de datos no está disponible.";
+        return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
     }
 
     try {
@@ -67,45 +67,51 @@ function consultarBicicleta($codigo) {
         $bici = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$bici) {
-            return function_exists('json_utf8_response')
-                ? json_utf8_response(["status" => "error", "mensaje" => "No se encontró ninguna bicicleta con el código '$codigo'."])
-                : json_encode(["status" => "error", "mensaje" => "No se encontró ninguna bicicleta con el código '$codigo'."]);
+            return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
         }
 
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "success", "data" => $bici])
-            : json_encode(["status" => "success", "data" => $bici], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return array(
+            'id'         => (int)$bici['id'],
+            'codigo'     => (string)$bici['codigo'],
+            'tipo'       => (string)$bici['tipo'],
+            'tarifa'     => (string)$bici['tarifa'],
+            'estado'     => (string)$bici['estado'],
+            'created_at' => (string)$bici['created_at']
+        );
 
     } catch (PDOException $e) {
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "error", "mensaje" => $e->getMessage()])
-            : json_encode(["status" => "error", "mensaje" => $e->getMessage()]);
+        return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
     }
 }
 
 /**
  * Operación SOAP: listarBicicletas
- * Criterio: Debe existir una operación para listar bicicletas.
+ * Criterio: Debe existir una operación para listar bicicletas en formato XML.
  */
 function listarBicicletas() {
     global $pdo;
 
     if (!$pdo) {
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "error", "mensaje" => "Error de conexión a la base de datos."])
-            : json_encode(["status" => "error", "mensaje" => "Error de conexión a la base de datos."]);
+        return array();
     }
 
     try {
         $stmt = $pdo->query("SELECT id, codigo, tipo, tarifa, estado, created_at FROM bicicletas ORDER BY id ASC");
         $bicis = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "success", "data" => $bicis])
-            : json_encode(["status" => "success", "data" => $bicis], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $result = array();
+        foreach ($bicis as $b) {
+            $result[] = array(
+                'id'         => (int)$b['id'],
+                'codigo'     => (string)$b['codigo'],
+                'tipo'       => (string)$b['tipo'],
+                'tarifa'     => (string)$b['tarifa'],
+                'estado'     => (string)$b['estado'],
+                'created_at' => (string)$b['created_at']
+            );
+        }
+        return $result;
     } catch (PDOException $e) {
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "error", "mensaje" => $e->getMessage()])
-            : json_encode(["status" => "error", "mensaje" => $e->getMessage()]);
+        return array();
     }
 }
 

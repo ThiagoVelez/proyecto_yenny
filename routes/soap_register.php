@@ -23,7 +23,7 @@ $server->register(
 $server->register(
     'consultarBicicleta',
     array('codigo' => 'xsd:string'),
-    array('return' => 'xsd:string'),
+    array('return' => 'tns:BicicletaData'),
     $namespace,
     false,
     'rpc',
@@ -35,7 +35,7 @@ $server->register(
 $server->register(
     'listarBicicletas',
     array(),
-    array('return' => 'xsd:string'),
+    array('return' => 'tns:BicicletaArray'),
     $namespace,
     false,
     'rpc',
@@ -75,12 +75,24 @@ $server->register(
 $server->register(
     'consultarAlquileres',
     array(),
-    array('return' => 'xsd:string'),
+    array('return' => 'tns:AlquilerArray'),
     $namespace,
     false,
     'rpc',
     'encoded',
     'Consulta todos los alquileres con datos del cliente y bicicleta'
+);
+
+// Alias: listarAlquileres()
+$server->register(
+    'listarAlquileres',
+    array(),
+    array('return' => 'tns:AlquilerArray'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Alias para listar todos los alquileres registrados'
 );
 
 // Operación adicional: finalizarAlquiler()
@@ -113,7 +125,7 @@ $server->register(
 $server->register(
     'consultarCliente',
     array('documento' => 'xsd:string'),
-    array('return' => 'xsd:string'),
+    array('return' => 'tns:ClienteData'),
     $namespace,
     false,
     'rpc',
@@ -124,7 +136,7 @@ $server->register(
 $server->register(
     'listarClientes',
     array(),
-    array('return' => 'xsd:string'),
+    array('return' => 'tns:ClienteArray'),
     $namespace,
     false,
     'rpc',

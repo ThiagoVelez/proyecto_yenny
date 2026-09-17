@@ -1,0 +1,859 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="db295d38-522d-4790-9892-4b4ed8ad55b8" activeEnvironment="Default" name="parcial_corte1" resourceRoot="" soapui-version="5.10.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="43163bd4-35d1-4bfe-86b2-e55669570443" wsaVersion="NONE" name="SoapServiceBinding" type="wsdl" bindingName="{InsertUserSOAP}SoapServiceBinding" soapVersion="1_1" anonymous="optional" definition="http://127.0.0.1:8000/server.php?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://127.0.0.1:8000/server.php?wsdl"><con:part><con:url>http://127.0.0.1:8000/server.php?wsdl</con:url><con:content><![CDATA[<definitions targetNamespace="InsertUserSOAP" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="InsertUserSOAP" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xsd:schema targetNamespace="InsertUserSOAP">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+      <xsd:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+      <xsd:complexType name="InsertBicicleta">
+        <xsd:all>
+          <xsd:element name="codigo" type="xsd:string"/>
+          <xsd:element name="tipo" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="estado" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="UpdateBicicleta">
+        <xsd:all>
+          <xsd:element name="codigo" type="xsd:string"/>
+          <xsd:element name="tipo" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="estado" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="BicicletaData">
+        <xsd:all>
+          <xsd:element name="id" type="xsd:int"/>
+          <xsd:element name="codigo" type="xsd:string"/>
+          <xsd:element name="tipo" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="estado" type="xsd:string"/>
+          <xsd:element name="created_at" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="BicicletaArray">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:BicicletaData[]" xmlns:wsdl1="http://schemas.xmlsoap.org/wsdl/"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="InsertCliente">
+        <xsd:all>
+          <xsd:element name="documento" type="xsd:string"/>
+          <xsd:element name="nombre" type="xsd:string"/>
+          <xsd:element name="telefono" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ClienteData">
+        <xsd:all>
+          <xsd:element name="id" type="xsd:int"/>
+          <xsd:element name="documento" type="xsd:string"/>
+          <xsd:element name="nombre" type="xsd:string"/>
+          <xsd:element name="telefono" type="xsd:string"/>
+          <xsd:element name="created_at" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ClienteArray">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:ClienteData[]" xmlns:wsdl1="http://schemas.xmlsoap.org/wsdl/"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="InsertAlquiler">
+        <xsd:all>
+          <xsd:element name="codigo_bicicleta" type="xsd:string"/>
+          <xsd:element name="documento_cliente" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="AlquilerData">
+        <xsd:all>
+          <xsd:element name="id" type="xsd:int"/>
+          <xsd:element name="bicicleta_codigo" type="xsd:string"/>
+          <xsd:element name="bicicleta_tipo" type="xsd:string"/>
+          <xsd:element name="bicicleta_tarifa" type="xsd:string"/>
+          <xsd:element name="cliente_documento" type="xsd:string"/>
+          <xsd:element name="cliente_nombre" type="xsd:string"/>
+          <xsd:element name="cliente_telefono" type="xsd:string"/>
+          <xsd:element name="fecha_inicio" type="xsd:string"/>
+          <xsd:element name="fecha_fin" type="xsd:string"/>
+          <xsd:element name="total" type="xsd:string"/>
+          <xsd:element name="estado" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="AlquilerArray">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:AlquilerData[]" xmlns:wsdl1="http://schemas.xmlsoap.org/wsdl/"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="InsertUser">
+        <xsd:all>
+          <xsd:element name="user_name" type="xsd:string"/>
+          <xsd:element name="lastname" type="xsd:string"/>
+          <xsd:element name="doc_type_id" type="xsd:int"/>
+          <xsd:element name="num_doc" type="xsd:string"/>
+          <xsd:element name="address" type="xsd:string"/>
+          <xsd:element name="phone" type="xsd:string"/>
+          <xsd:element name="password" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="UpdateUser">
+        <xsd:all>
+          <xsd:element name="id" type="xsd:int"/>
+          <xsd:element name="user_name" type="xsd:string"/>
+          <xsd:element name="lastname" type="xsd:string"/>
+          <xsd:element name="doc_type_id" type="xsd:int"/>
+          <xsd:element name="num_doc" type="xsd:string"/>
+          <xsd:element name="address" type="xsd:string"/>
+          <xsd:element name="phone" type="xsd:string"/>
+          <xsd:element name="password" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="UserData">
+        <xsd:all>
+          <xsd:element name="id" type="xsd:int"/>
+          <xsd:element name="user_name" type="xsd:string"/>
+          <xsd:element name="lastname" type="xsd:string"/>
+          <xsd:element name="doc_type_id" type="xsd:int"/>
+          <xsd:element name="num_doc" type="xsd:string"/>
+          <xsd:element name="address" type="xsd:string"/>
+          <xsd:element name="phone" type="xsd:string"/>
+          <xsd:element name="created_date" type="xsd:string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="UserArray">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:UserData[]" xmlns:wsdl1="http://schemas.xmlsoap.org/wsdl/"/>
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+    </xsd:schema>
+  </types>
+  <message name="registrarBicicleta">
+    <part name="data" type="tns:InsertBicicleta"/>
+  </message>
+  <message name="registrarBicicletaResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="consultarBicicleta">
+    <part name="codigo" type="xsd:string"/>
+  </message>
+  <message name="consultarBicicletaResponse">
+    <part name="return" type="tns:BicicletaData"/>
+  </message>
+  <message name="listarBicicletas"/>
+  <message name="listarBicicletasResponse">
+    <part name="return" type="tns:BicicletaArray"/>
+  </message>
+  <message name="actualizarBicicleta">
+    <part name="data" type="tns:UpdateBicicleta"/>
+  </message>
+  <message name="actualizarBicicletaResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="registrarAlquiler">
+    <part name="data" type="tns:InsertAlquiler"/>
+  </message>
+  <message name="registrarAlquilerResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="consultarAlquileres"/>
+  <message name="consultarAlquileresResponse">
+    <part name="return" type="tns:AlquilerArray"/>
+  </message>
+  <message name="listarAlquileres"/>
+  <message name="listarAlquileresResponse">
+    <part name="return" type="tns:AlquilerArray"/>
+  </message>
+  <message name="finalizarAlquiler">
+    <part name="codigo_bicicleta" type="xsd:string"/>
+  </message>
+  <message name="finalizarAlquilerResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="registrarCliente">
+    <part name="data" type="tns:InsertCliente"/>
+  </message>
+  <message name="registrarClienteResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="consultarCliente">
+    <part name="documento" type="xsd:string"/>
+  </message>
+  <message name="consultarClienteResponse">
+    <part name="return" type="tns:ClienteData"/>
+  </message>
+  <message name="listarClientes"/>
+  <message name="listarClientesResponse">
+    <part name="return" type="tns:ClienteArray"/>
+  </message>
+  <message name="LoginService">
+    <part name="user_name" type="xsd:string"/>
+    <part name="password" type="xsd:string"/>
+  </message>
+  <message name="LoginServiceResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="login">
+    <part name="user_name" type="xsd:string"/>
+    <part name="password" type="xsd:string"/>
+  </message>
+  <message name="loginResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="ValidateTokenService">
+    <part name="token" type="xsd:string"/>
+  </message>
+  <message name="ValidateTokenServiceResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="validarToken">
+    <part name="token" type="xsd:string"/>
+  </message>
+  <message name="validarTokenResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="InsertUserService">
+    <part name="data" type="tns:InsertUser"/>
+  </message>
+  <message name="InsertUserServiceResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="insertarUsuario">
+    <part name="data" type="tns:InsertUser"/>
+  </message>
+  <message name="insertarUsuarioResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="UpdateUserService">
+    <part name="data" type="tns:UpdateUser"/>
+  </message>
+  <message name="UpdateUserServiceResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="actualizarUsuario">
+    <part name="data" type="tns:UpdateUser"/>
+  </message>
+  <message name="actualizarUsuarioResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="DeleteUserService">
+    <part name="id" type="xsd:int"/>
+  </message>
+  <message name="DeleteUserServiceResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="eliminarUsuario">
+    <part name="id" type="xsd:int"/>
+  </message>
+  <message name="eliminarUsuarioResponse">
+    <part name="return" type="xsd:string"/>
+  </message>
+  <message name="SelectUserService">
+    <part name="id" type="xsd:int"/>
+  </message>
+  <message name="SelectUserServiceResponse">
+    <part name="return" type="tns:UserData"/>
+  </message>
+  <message name="seleccionarUsuario">
+    <part name="id" type="xsd:int"/>
+  </message>
+  <message name="seleccionarUsuarioResponse">
+    <part name="return" type="tns:UserData"/>
+  </message>
+  <message name="ListUsersService"/>
+  <message name="ListUsersServiceResponse">
+    <part name="return" type="tns:UserArray"/>
+  </message>
+  <message name="listarUsuarios"/>
+  <message name="listarUsuariosResponse">
+    <part name="return" type="tns:UserArray"/>
+  </message>
+  <portType name="SoapServicePortType">
+    <operation name="registrarBicicleta">
+      <documentation>Registra una nueva bicicleta en el sistema (MySQL)</documentation>
+      <input message="tns:registrarBicicleta"/>
+      <output message="tns:registrarBicicletaResponse"/>
+    </operation>
+    <operation name="consultarBicicleta">
+      <documentation>Consulta los datos de una bicicleta determinada por su cÃ³digo</documentation>
+      <input message="tns:consultarBicicleta"/>
+      <output message="tns:consultarBicicletaResponse"/>
+    </operation>
+    <operation name="listarBicicletas">
+      <documentation>Retorna la lista completa de todas las bicicletas</documentation>
+      <input message="tns:listarBicicletas"/>
+      <output message="tns:listarBicicletasResponse"/>
+    </operation>
+    <operation name="actualizarBicicleta">
+      <documentation>Permite modificar tipo, tarifa o estado de una bicicleta</documentation>
+      <input message="tns:actualizarBicicleta"/>
+      <output message="tns:actualizarBicicletaResponse"/>
+    </operation>
+    <operation name="registrarAlquiler">
+      <documentation>Registra un nuevo alquiler validando disponibilidad y actualizando el estado de la bicicleta</documentation>
+      <input message="tns:registrarAlquiler"/>
+      <output message="tns:registrarAlquilerResponse"/>
+    </operation>
+    <operation name="consultarAlquileres">
+      <documentation>Consulta todos los alquileres con datos del cliente y bicicleta</documentation>
+      <input message="tns:consultarAlquileres"/>
+      <output message="tns:consultarAlquileresResponse"/>
+    </operation>
+    <operation name="listarAlquileres">
+      <documentation>Alias para listar todos los alquileres registrados</documentation>
+      <input message="tns:listarAlquileres"/>
+      <output message="tns:listarAlquileresResponse"/>
+    </operation>
+    <operation name="finalizarAlquiler">
+      <documentation>Finaliza el alquiler activo, calcula el valor a pagar y deja disponible la bicicleta</documentation>
+      <input message="tns:finalizarAlquiler"/>
+      <output message="tns:finalizarAlquilerResponse"/>
+    </operation>
+    <operation name="registrarCliente">
+      <documentation>Registra un nuevo cliente</documentation>
+      <input message="tns:registrarCliente"/>
+      <output message="tns:registrarClienteResponse"/>
+    </operation>
+    <operation name="consultarCliente">
+      <documentation>Consulta un cliente por documento</documentation>
+      <input message="tns:consultarCliente"/>
+      <output message="tns:consultarClienteResponse"/>
+    </operation>
+    <operation name="listarClientes">
+      <documentation>Lista todos los clientes registrados</documentation>
+      <input message="tns:listarClientes"/>
+      <output message="tns:listarClientesResponse"/>
+    </operation>
+    <operation name="LoginService">
+      <documentation>Autentica las credenciales, genera un token criptogrÃ¡fico de 64 hex y lo almacena con NOW()</documentation>
+      <input message="tns:LoginService"/>
+      <output message="tns:LoginServiceResponse"/>
+    </operation>
+    <operation name="login">
+      <documentation>Alias en espaÃ±ol para LoginService</documentation>
+      <input message="tns:login"/>
+      <output message="tns:loginResponse"/>
+    </operation>
+    <operation name="ValidateTokenService">
+      <documentation>Valida si un token criptogrÃ¡fico existe y estÃ¡ activo en la base de datos</documentation>
+      <input message="tns:ValidateTokenService"/>
+      <output message="tns:ValidateTokenServiceResponse"/>
+    </operation>
+    <operation name="validarToken">
+      <documentation>Alias en espaÃ±ol para ValidateTokenService</documentation>
+      <input message="tns:validarToken"/>
+      <output message="tns:validarTokenResponse"/>
+    </operation>
+    <operation name="InsertUserService">
+      <documentation>Inserta un nuevo usuario en la base de datos</documentation>
+      <input message="tns:InsertUserService"/>
+      <output message="tns:InsertUserServiceResponse"/>
+    </operation>
+    <operation name="insertarUsuario">
+      <documentation>Alias para registrar un usuario</documentation>
+      <input message="tns:insertarUsuario"/>
+      <output message="tns:insertarUsuarioResponse"/>
+    </operation>
+    <operation name="UpdateUserService">
+      <documentation>Actualiza los datos de un usuario existente</documentation>
+      <input message="tns:UpdateUserService"/>
+      <output message="tns:UpdateUserServiceResponse"/>
+    </operation>
+    <operation name="actualizarUsuario">
+      <documentation>Alias para actualizar un usuario</documentation>
+      <input message="tns:actualizarUsuario"/>
+      <output message="tns:actualizarUsuarioResponse"/>
+    </operation>
+    <operation name="DeleteUserService">
+      <documentation>Elimina un usuario por su identificador (ID)</documentation>
+      <input message="tns:DeleteUserService"/>
+      <output message="tns:DeleteUserServiceResponse"/>
+    </operation>
+    <operation name="eliminarUsuario">
+      <documentation>Alias para eliminar un usuario</documentation>
+      <input message="tns:eliminarUsuario"/>
+      <output message="tns:eliminarUsuarioResponse"/>
+    </operation>
+    <operation name="SelectUserService">
+      <documentation>Selecciona y retorna los datos de un usuario por su ID</documentation>
+      <input message="tns:SelectUserService"/>
+      <output message="tns:SelectUserServiceResponse"/>
+    </operation>
+    <operation name="seleccionarUsuario">
+      <documentation>Alias para seleccionar un usuario por ID</documentation>
+      <input message="tns:seleccionarUsuario"/>
+      <output message="tns:seleccionarUsuarioResponse"/>
+    </operation>
+    <operation name="ListUsersService">
+      <documentation>Retorna la lista completa de todos los usuarios</documentation>
+      <input message="tns:ListUsersService"/>
+      <output message="tns:ListUsersServiceResponse"/>
+    </operation>
+    <operation name="listarUsuarios">
+      <documentation>Alias para listar todos los usuarios</documentation>
+      <input message="tns:listarUsuarios"/>
+      <output message="tns:listarUsuariosResponse"/>
+    </operation>
+  </portType>
+  <binding name="SoapServiceBinding" type="tns:SoapServicePortType">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="registrarBicicleta">
+      <soap:operation soapAction="http://127.0.0.1/server.php/registrarBicicleta" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="consultarBicicleta">
+      <soap:operation soapAction="http://127.0.0.1/server.php/consultarBicicleta" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="listarBicicletas">
+      <soap:operation soapAction="http://127.0.0.1/server.php/listarBicicletas" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="actualizarBicicleta">
+      <soap:operation soapAction="http://127.0.0.1/server.php/actualizarBicicleta" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="registrarAlquiler">
+      <soap:operation soapAction="http://127.0.0.1/server.php/registrarAlquiler" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="consultarAlquileres">
+      <soap:operation soapAction="http://127.0.0.1/server.php/consultarAlquileres" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="listarAlquileres">
+      <soap:operation soapAction="http://127.0.0.1/server.php/listarAlquileres" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="finalizarAlquiler">
+      <soap:operation soapAction="http://127.0.0.1/server.php/finalizarAlquiler" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="registrarCliente">
+      <soap:operation soapAction="http://127.0.0.1/server.php/registrarCliente" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="consultarCliente">
+      <soap:operation soapAction="http://127.0.0.1/server.php/consultarCliente" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="listarClientes">
+      <soap:operation soapAction="http://127.0.0.1/server.php/listarClientes" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="LoginService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/LoginService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="login">
+      <soap:operation soapAction="http://127.0.0.1/server.php/login" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="ValidateTokenService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/ValidateTokenService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="validarToken">
+      <soap:operation soapAction="http://127.0.0.1/server.php/validarToken" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="InsertUserService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/InsertUserService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="insertarUsuario">
+      <soap:operation soapAction="http://127.0.0.1/server.php/insertarUsuario" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="UpdateUserService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/UpdateUserService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="actualizarUsuario">
+      <soap:operation soapAction="http://127.0.0.1/server.php/actualizarUsuario" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="DeleteUserService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/DeleteUserService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="eliminarUsuario">
+      <soap:operation soapAction="http://127.0.0.1/server.php/eliminarUsuario" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="SelectUserService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/SelectUserService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="seleccionarUsuario">
+      <soap:operation soapAction="http://127.0.0.1/server.php/seleccionarUsuario" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="ListUsersService">
+      <soap:operation soapAction="http://127.0.0.1/server.php/ListUsersService" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+    <operation name="listarUsuarios">
+      <soap:operation soapAction="http://127.0.0.1/server.php/listarUsuarios" style="rpc"/>
+      <input>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="InsertUserSOAP" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="SoapService">
+    <port name="SoapServicePort" binding="tns:SoapServiceBinding">
+      <soap:address location="http://127.0.0.1:8000/server.php"/>
+    </port>
+  </service>
+</definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint></con:endpoints><con:operation id="8dc1bf4b-1941-4476-ad45-557d199ba24a" isOneWay="false" action="http://127.0.0.1/server.php/actualizarBicicleta" name="actualizarBicicleta" bindingOperationName="actualizarBicicleta" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="f648e972-5321-41cf-a314-2c603d3b9656" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:actualizarBicicleta soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:UpdateBicicleta">\r
+            <!--You may enter the following 4 items in any order-->\r
+            <codigo xsi:type="xsd:string">?</codigo>\r
+            <tipo xsi:type="xsd:string">?</tipo>\r
+            <tarifa xsi:type="xsd:string">?</tarifa>\r
+            <estado xsi:type="xsd:string">?</estado>\r
+         </data>\r
+      </ins:actualizarBicicleta>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/actualizarBicicleta"/></con:call></con:operation><con:operation id="17115f58-4d5b-4250-948c-da0a8a9ab91d" isOneWay="false" action="http://127.0.0.1/server.php/actualizarUsuario" name="actualizarUsuario" bindingOperationName="actualizarUsuario" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="2dfb7034-7eff-4652-86d1-5551092e09ab" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:actualizarUsuario soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:UpdateUser">\r
+            <!--You may enter the following 8 items in any order-->\r
+            <id xsi:type="xsd:int">?</id>\r
+            <user_name xsi:type="xsd:string">?</user_name>\r
+            <lastname xsi:type="xsd:string">?</lastname>\r
+            <doc_type_id xsi:type="xsd:int">?</doc_type_id>\r
+            <num_doc xsi:type="xsd:string">?</num_doc>\r
+            <address xsi:type="xsd:string">?</address>\r
+            <phone xsi:type="xsd:string">?</phone>\r
+            <password xsi:type="xsd:string">?</password>\r
+         </data>\r
+      </ins:actualizarUsuario>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/actualizarUsuario"/></con:call></con:operation><con:operation id="caf881aa-d2ef-43a1-b2bc-032291764fc9" isOneWay="false" action="http://127.0.0.1/server.php/consultarAlquileres" name="consultarAlquileres" bindingOperationName="consultarAlquileres" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="0d71ba4f-eb56-4a39-9879-ad0646b0dec2" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:consultarAlquileres soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/consultarAlquileres"/></con:call></con:operation><con:operation id="696ebf71-fba7-48fc-98de-d65e73fb6a84" isOneWay="false" action="http://127.0.0.1/server.php/consultarBicicleta" name="consultarBicicleta" bindingOperationName="consultarBicicleta" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="b2922490-176f-439d-b97d-bfe293c1aeec" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:consultarBicicleta soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <codigo xsi:type="xsd:string">?</codigo>\r
+      </ins:consultarBicicleta>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/consultarBicicleta"/></con:call></con:operation><con:operation id="363764cb-cf8e-413a-b0ff-73374f171eab" isOneWay="false" action="http://127.0.0.1/server.php/consultarCliente" name="consultarCliente" bindingOperationName="consultarCliente" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="31b5ffbb-1b74-485d-87fd-a5af93b93b6c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:consultarCliente soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <documento xsi:type="xsd:string">?</documento>\r
+      </ins:consultarCliente>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/consultarCliente"/></con:call></con:operation><con:operation id="0201f8ad-fe45-44bd-8bde-c97271c1abb8" isOneWay="false" action="http://127.0.0.1/server.php/DeleteUserService" name="DeleteUserService" bindingOperationName="DeleteUserService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9fcd2320-a83d-474d-b8ff-05fe771b3c15" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:DeleteUserService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <id xsi:type="xsd:int">?</id>\r
+      </ins:DeleteUserService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/DeleteUserService"/></con:call></con:operation><con:operation id="7905e9e4-c2ca-45c1-a959-9ed858496b9a" isOneWay="false" action="http://127.0.0.1/server.php/eliminarUsuario" name="eliminarUsuario" bindingOperationName="eliminarUsuario" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6ce785d5-8d67-4659-8d95-6bf5c7f2c7ed" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:eliminarUsuario soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <id xsi:type="xsd:int">?</id>\r
+      </ins:eliminarUsuario>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/eliminarUsuario"/></con:call></con:operation><con:operation id="47e6e868-4807-4bcf-93a8-951da578121c" isOneWay="false" action="http://127.0.0.1/server.php/finalizarAlquiler" name="finalizarAlquiler" bindingOperationName="finalizarAlquiler" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="f4aef774-bec8-4f10-a0ac-bfbd24785f7a" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:finalizarAlquiler soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <codigo_bicicleta xsi:type="xsd:string">?</codigo_bicicleta>\r
+      </ins:finalizarAlquiler>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/finalizarAlquiler"/></con:call></con:operation><con:operation id="723fcff1-489c-4d3a-9c2f-8f87e654adf4" isOneWay="false" action="http://127.0.0.1/server.php/insertarUsuario" name="insertarUsuario" bindingOperationName="insertarUsuario" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4a62f1aa-af09-4b30-bf1b-ee3cbaaa87f8" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:insertarUsuario soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertUser">\r
+            <!--You may enter the following 7 items in any order-->\r
+            <user_name xsi:type="xsd:string">?</user_name>\r
+            <lastname xsi:type="xsd:string">?</lastname>\r
+            <doc_type_id xsi:type="xsd:int">?</doc_type_id>\r
+            <num_doc xsi:type="xsd:string">?</num_doc>\r
+            <address xsi:type="xsd:string">?</address>\r
+            <phone xsi:type="xsd:string">?</phone>\r
+            <password xsi:type="xsd:string">?</password>\r
+         </data>\r
+      </ins:insertarUsuario>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/insertarUsuario"/></con:call></con:operation><con:operation id="8fdbf934-2dc4-4845-b087-c4a5fec0fcf6" isOneWay="false" action="http://127.0.0.1/server.php/InsertUserService" name="InsertUserService" bindingOperationName="InsertUserService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="833b180b-bc39-4248-aba3-847191a55421" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:InsertUserService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertUser">\r
+            <!--You may enter the following 7 items in any order-->\r
+            <user_name xsi:type="xsd:string">?</user_name>\r
+            <lastname xsi:type="xsd:string">?</lastname>\r
+            <doc_type_id xsi:type="xsd:int">?</doc_type_id>\r
+            <num_doc xsi:type="xsd:string">?</num_doc>\r
+            <address xsi:type="xsd:string">?</address>\r
+            <phone xsi:type="xsd:string">?</phone>\r
+            <password xsi:type="xsd:string">?</password>\r
+         </data>\r
+      </ins:InsertUserService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/InsertUserService"/></con:call></con:operation><con:operation id="9f9d790b-65b5-4809-8f64-d4e51c799bbe" isOneWay="false" action="http://127.0.0.1/server.php/listarAlquileres" name="listarAlquileres" bindingOperationName="listarAlquileres" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8fe78d19-c1a2-488e-9ea8-5e891cf89d3c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:listarAlquileres soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/listarAlquileres"/></con:call></con:operation><con:operation id="617affee-4834-4bb5-becf-eaa6af9209b4" isOneWay="false" action="http://127.0.0.1/server.php/listarBicicletas" name="listarBicicletas" bindingOperationName="listarBicicletas" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a844981c-d240-476a-9ac1-31a3e93c99ad" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:listarBicicletas soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/listarBicicletas"/></con:call></con:operation><con:operation id="dfe8ced5-b6d0-40c3-be15-fc12af0e6bc8" isOneWay="false" action="http://127.0.0.1/server.php/listarClientes" name="listarClientes" bindingOperationName="listarClientes" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="88573729-2f63-469a-9ad0-dd45504c918a" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:listarClientes soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/listarClientes"/></con:call></con:operation><con:operation id="76ce6847-3e0d-4903-ae90-eaa697f42536" isOneWay="false" action="http://127.0.0.1/server.php/listarUsuarios" name="listarUsuarios" bindingOperationName="listarUsuarios" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5836f8ff-62e8-45b7-8956-df3f96254c3d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:listarUsuarios soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/listarUsuarios"/></con:call></con:operation><con:operation id="0007fec7-c9eb-4267-8d9d-2e1cc19553e9" isOneWay="false" action="http://127.0.0.1/server.php/ListUsersService" name="ListUsersService" bindingOperationName="ListUsersService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5bcf92ea-86e7-4db1-b6dc-77963f47e74d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:ListUsersService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/ListUsersService"/></con:call></con:operation><con:operation id="fc3214f4-2cc5-4264-a477-ff3792f5ea5c" isOneWay="false" action="http://127.0.0.1/server.php/login" name="login" bindingOperationName="login" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="38ac563c-86d1-4782-913c-bff5078fab36" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:login soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <user_name xsi:type="xsd:string">?</user_name>\r
+         <password xsi:type="xsd:string">?</password>\r
+      </ins:login>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/login"/></con:call></con:operation><con:operation id="d1f48d2b-2c9d-4bd0-9ab0-aabe8fbeb2a1" isOneWay="false" action="http://127.0.0.1/server.php/LoginService" name="LoginService" bindingOperationName="LoginService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="bb1fa58a-b721-401a-bfa6-3008c2b71226" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:LoginService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <user_name xsi:type="xsd:string">?</user_name>\r
+         <password xsi:type="xsd:string">?</password>\r
+      </ins:LoginService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/LoginService"/></con:call></con:operation><con:operation id="44a08cec-e8ec-4ab5-b939-07e43fc16831" isOneWay="false" action="http://127.0.0.1/server.php/registrarAlquiler" name="registrarAlquiler" bindingOperationName="registrarAlquiler" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="846af60e-1801-40d8-a966-08a351b07850" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:registrarAlquiler soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertAlquiler">\r
+            <!--You may enter the following 2 items in any order-->\r
+            <codigo_bicicleta xsi:type="xsd:string">?</codigo_bicicleta>\r
+            <documento_cliente xsi:type="xsd:string">?</documento_cliente>\r
+         </data>\r
+      </ins:registrarAlquiler>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarAlquiler"/></con:call></con:operation><con:operation id="510b7699-4d86-4ddc-b3c3-12f4af48a377" isOneWay="false" action="http://127.0.0.1/server.php/registrarBicicleta" name="registrarBicicleta" bindingOperationName="registrarBicicleta" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6905c4a8-d378-437a-93eb-4c2fa71fd4d7" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:registrarBicicleta soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertBicicleta">\r
+            <!--You may enter the following 4 items in any order-->\r
+            <codigo xsi:type="xsd:string">?</codigo>\r
+            <tipo xsi:type="xsd:string">?</tipo>\r
+            <tarifa xsi:type="xsd:string">?</tarifa>\r
+            <estado xsi:type="xsd:string">?</estado>\r
+         </data>\r
+      </ins:registrarBicicleta>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarBicicleta"/></con:call></con:operation><con:operation id="3a10596a-89e9-4ab6-9334-6f869a5f515c" isOneWay="false" action="http://127.0.0.1/server.php/registrarCliente" name="registrarCliente" bindingOperationName="registrarCliente" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="41b8c16d-71e1-4b82-9c7f-8c237cfdd06c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:registrarCliente soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertCliente">\r
+            <!--You may enter the following 3 items in any order-->\r
+            <documento xsi:type="xsd:string">?</documento>\r
+            <nombre xsi:type="xsd:string">?</nombre>\r
+            <telefono xsi:type="xsd:string">?</telefono>\r
+         </data>\r
+      </ins:registrarCliente>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarCliente"/></con:call></con:operation><con:operation id="b912adaf-bac0-45e6-bbb2-099cad4b2a25" isOneWay="false" action="http://127.0.0.1/server.php/seleccionarUsuario" name="seleccionarUsuario" bindingOperationName="seleccionarUsuario" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="93b15f4e-3737-4fa1-a91a-d25e54b29fc5" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:seleccionarUsuario soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <id xsi:type="xsd:int">?</id>\r
+      </ins:seleccionarUsuario>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/seleccionarUsuario"/></con:call></con:operation><con:operation id="3560ccbb-7ab6-4260-9a64-0b8aa4ef5d7c" isOneWay="false" action="http://127.0.0.1/server.php/SelectUserService" name="SelectUserService" bindingOperationName="SelectUserService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="1d289c41-60f0-4a74-af7f-687705f85320" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:SelectUserService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <id xsi:type="xsd:int">?</id>\r
+      </ins:SelectUserService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/SelectUserService"/></con:call></con:operation><con:operation id="f1b78e68-b607-40a5-aab5-7391e76e57fe" isOneWay="false" action="http://127.0.0.1/server.php/UpdateUserService" name="UpdateUserService" bindingOperationName="UpdateUserService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4ba226f6-5cc8-4836-a093-041368bd2ca0" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:UpdateUserService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:UpdateUser">\r
+            <!--You may enter the following 8 items in any order-->\r
+            <id xsi:type="xsd:int">?</id>\r
+            <user_name xsi:type="xsd:string">?</user_name>\r
+            <lastname xsi:type="xsd:string">?</lastname>\r
+            <doc_type_id xsi:type="xsd:int">?</doc_type_id>\r
+            <num_doc xsi:type="xsd:string">?</num_doc>\r
+            <address xsi:type="xsd:string">?</address>\r
+            <phone xsi:type="xsd:string">?</phone>\r
+            <password xsi:type="xsd:string">?</password>\r
+         </data>\r
+      </ins:UpdateUserService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/UpdateUserService"/></con:call></con:operation><con:operation id="6c7f0408-f2f8-4e5c-8027-57e57a08ca1b" isOneWay="false" action="http://127.0.0.1/server.php/validarToken" name="validarToken" bindingOperationName="validarToken" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="86bc003f-0ba0-4ead-90ac-581a63589d27" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:validarToken soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <token xsi:type="xsd:string">?</token>\r
+      </ins:validarToken>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/validarToken"/></con:call></con:operation><con:operation id="efb547da-4664-46bb-9e00-8da8d0ecb4fc" isOneWay="false" action="http://127.0.0.1/server.php/ValidateTokenService" name="ValidateTokenService" bindingOperationName="ValidateTokenService" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ff2e41e1-a9df-42ac-ab79-1417677802e4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:ValidateTokenService soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <token xsi:type="xsd:string">?</token>\r
+      </ins:ValidateTokenService>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/ValidateTokenService"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/></con:soapui-project>

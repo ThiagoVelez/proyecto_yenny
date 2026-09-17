@@ -41,17 +41,25 @@ function ConsultarClientesService() {
     global $pdo;
 
     if (!$pdo) {
-        return "Error: La conexión a la base de datos no está disponible.";
+        return array();
     }
 
     try {
         $stmt = $pdo->query("SELECT id, documento, nombre, telefono, created_at FROM clientes ORDER BY nombre ASC");
         $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return function_exists('json_utf8_response') 
-            ? json_utf8_response($clientes) 
-            : json_encode($clientes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $result = array();
+        foreach ($clientes as $c) {
+            $result[] = array(
+                'id'         => (int)$c['id'],
+                'documento'  => (string)$c['documento'],
+                'nombre'     => (string)$c['nombre'],
+                'telefono'   => (string)$c['telefono'],
+                'created_at' => (string)$c['created_at']
+            );
+        }
+        return $result;
     } catch (PDOException $e) {
-        return "Error: " . $e->getMessage();
+        return array();
     }
 }
 
@@ -62,11 +70,8 @@ function registrarCliente($data) {
 
 function consultarCliente($documento) {
     global $pdo;
-    if (!$pdo) {
-        return -1;
-    }
-    if (empty($documento)) {
-        return -1;
+    if (!$pdo || empty($documento)) {
+        return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
     }
     try {
         $stmt = $pdo->prepare("SELECT id, documento, nombre, telefono, created_at FROM clientes WHERE documento = :doc");
@@ -74,13 +79,17 @@ function consultarCliente($documento) {
         $stmt->execute();
         $cli = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$cli) {
-            return -1;
+            return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
         }
-        return function_exists('json_utf8_response') 
-            ? json_utf8_response($cli) 
-            : json_encode($cli, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return array(
+            'id'         => (int)$cli['id'],
+            'documento'  => (string)$cli['documento'],
+            'nombre'     => (string)$cli['nombre'],
+            'telefono'   => (string)$cli['telefono'],
+            'created_at' => (string)$cli['created_at']
+        );
     } catch (PDOException $e) {
-        return -1;
+        return class_exists('soapval') ? new soapval('return', 'xsd:string', '-1') : -1;
     }
 }
 

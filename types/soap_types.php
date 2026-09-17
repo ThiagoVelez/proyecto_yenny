@@ -33,6 +33,37 @@ $server->wsdl->addComplexType(
     )
 );
 
+// Tipo complejo: Datos de Bicicleta (BicicletaData)
+$server->wsdl->addComplexType(
+    'BicicletaData',
+    'complexType',
+    'struct',
+    'all',
+    '',
+    array(
+        'id'         => array('name' => 'id',         'type' => 'xsd:int'),
+        'codigo'     => array('name' => 'codigo',     'type' => 'xsd:string'),
+        'tipo'       => array('name' => 'tipo',       'type' => 'xsd:string'),
+        'tarifa'     => array('name' => 'tarifa',     'type' => 'xsd:string'),
+        'estado'     => array('name' => 'estado',     'type' => 'xsd:string'),
+        'created_at' => array('name' => 'created_at', 'type' => 'xsd:string')
+    )
+);
+
+// Tipo complejo: Arreglo de Bicicletas para listar (BicicletaArray)
+$server->wsdl->addComplexType(
+    'BicicletaArray',
+    'complexType',
+    'array',
+    '',
+    'SOAP-ENC:Array',
+    array(),
+    array(
+        array('ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'tns:BicicletaData[]')
+    ),
+    'tns:BicicletaData'
+);
+
 // Tipo complejo: Registrar Cliente
 $server->wsdl->addComplexType(
     'InsertCliente',
@@ -47,6 +78,36 @@ $server->wsdl->addComplexType(
     )
 );
 
+// Tipo complejo: Datos de Cliente (ClienteData)
+$server->wsdl->addComplexType(
+    'ClienteData',
+    'complexType',
+    'struct',
+    'all',
+    '',
+    array(
+        'id'         => array('name' => 'id',         'type' => 'xsd:int'),
+        'documento'  => array('name' => 'documento',  'type' => 'xsd:string'),
+        'nombre'     => array('name' => 'nombre',     'type' => 'xsd:string'),
+        'telefono'   => array('name' => 'telefono',   'type' => 'xsd:string'),
+        'created_at' => array('name' => 'created_at', 'type' => 'xsd:string')
+    )
+);
+
+// Tipo complejo: Arreglo de Clientes para listar (ClienteArray)
+$server->wsdl->addComplexType(
+    'ClienteArray',
+    'complexType',
+    'array',
+    '',
+    'SOAP-ENC:Array',
+    array(),
+    array(
+        array('ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'tns:ClienteData[]')
+    ),
+    'tns:ClienteData'
+);
+
 // Tipo complejo: Registrar Alquiler
 $server->wsdl->addComplexType(
     'InsertAlquiler',
@@ -58,6 +119,42 @@ $server->wsdl->addComplexType(
         'codigo_bicicleta'  => array('name' => 'codigo_bicicleta',  'type' => 'xsd:string'),
         'documento_cliente' => array('name' => 'documento_cliente', 'type' => 'xsd:string')
     )
+);
+
+// Tipo complejo: Datos de Alquiler (AlquilerData)
+$server->wsdl->addComplexType(
+    'AlquilerData',
+    'complexType',
+    'struct',
+    'all',
+    '',
+    array(
+        'id'                => array('name' => 'id',                'type' => 'xsd:int'),
+        'bicicleta_codigo'  => array('name' => 'bicicleta_codigo',  'type' => 'xsd:string'),
+        'bicicleta_tipo'    => array('name' => 'bicicleta_tipo',    'type' => 'xsd:string'),
+        'bicicleta_tarifa'  => array('name' => 'bicicleta_tarifa',  'type' => 'xsd:string'),
+        'cliente_documento' => array('name' => 'cliente_documento', 'type' => 'xsd:string'),
+        'cliente_nombre'    => array('name' => 'cliente_nombre',    'type' => 'xsd:string'),
+        'cliente_telefono'  => array('name' => 'cliente_telefono',  'type' => 'xsd:string'),
+        'fecha_inicio'      => array('name' => 'fecha_inicio',      'type' => 'xsd:string'),
+        'fecha_fin'         => array('name' => 'fecha_fin',         'type' => 'xsd:string'),
+        'total'             => array('name' => 'total',             'type' => 'xsd:string'),
+        'estado'            => array('name' => 'estado',            'type' => 'xsd:string')
+    )
+);
+
+// Tipo complejo: Arreglo de Alquileres para listar (AlquilerArray)
+$server->wsdl->addComplexType(
+    'AlquilerArray',
+    'complexType',
+    'array',
+    '',
+    'SOAP-ENC:Array',
+    array(),
+    array(
+        array('ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'tns:AlquilerData[]')
+    ),
+    'tns:AlquilerData'
 );
 
 // ==========================================================

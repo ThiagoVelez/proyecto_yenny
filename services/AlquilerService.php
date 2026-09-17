@@ -76,9 +76,7 @@ function consultarAlquileres() {
     global $pdo;
 
     if (!$pdo) {
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "error", "mensaje" => "Error de conexión a la base de datos."])
-            : json_encode(["status" => "error", "mensaje" => "Error de conexión a la base de datos."]);
+        return array();
     }
 
     try {
@@ -100,15 +98,34 @@ function consultarAlquileres() {
         $stmt = $pdo->query($sql);
         $alquileres = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "success", "data" => $alquileres])
-            : json_encode(["status" => "success", "data" => $alquileres], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $result = array();
+        foreach ($alquileres as $a) {
+            $result[] = array(
+                'id'                => (int)$a['id'],
+                'bicicleta_codigo'  => (string)$a['bicicleta_codigo'],
+                'bicicleta_tipo'    => (string)$a['bicicleta_tipo'],
+                'bicicleta_tarifa'  => (string)$a['bicicleta_tarifa'],
+                'cliente_documento' => (string)$a['cliente_documento'],
+                'cliente_nombre'    => (string)$a['cliente_nombre'],
+                'cliente_telefono'  => (string)$a['cliente_telefono'],
+                'fecha_inicio'      => (string)$a['fecha_inicio'],
+                'fecha_fin'         => (string)($a['fecha_fin'] ?? ''),
+                'total'             => (string)($a['total'] ?? '0.00'),
+                'estado'            => (string)$a['estado']
+            );
+        }
+        return $result;
 
     } catch (PDOException $e) {
-        return function_exists('json_utf8_response')
-            ? json_utf8_response(["status" => "error", "mensaje" => $e->getMessage()])
-            : json_encode(["status" => "error", "mensaje" => $e->getMessage()]);
+        return array();
     }
+}
+
+/**
+ * Alias de consultarAlquileres para listar en formato XML
+ */
+function listarAlquileres() {
+    return consultarAlquileres();
 }
 
 /**
