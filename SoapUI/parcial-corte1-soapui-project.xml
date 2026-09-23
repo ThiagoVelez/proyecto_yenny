@@ -8,7 +8,7 @@
         <xsd:all>
           <xsd:element name="codigo" type="xsd:string"/>
           <xsd:element name="tipo" type="xsd:string"/>
-          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:decimal"/>
           <xsd:element name="estado" type="xsd:string"/>
         </xsd:all>
       </xsd:complexType>
@@ -16,7 +16,7 @@
         <xsd:all>
           <xsd:element name="codigo" type="xsd:string"/>
           <xsd:element name="tipo" type="xsd:string"/>
-          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:decimal"/>
           <xsd:element name="estado" type="xsd:string"/>
         </xsd:all>
       </xsd:complexType>
@@ -25,7 +25,7 @@
           <xsd:element name="id" type="xsd:int"/>
           <xsd:element name="codigo" type="xsd:string"/>
           <xsd:element name="tipo" type="xsd:string"/>
-          <xsd:element name="tarifa" type="xsd:string"/>
+          <xsd:element name="tarifa" type="xsd:decimal"/>
           <xsd:element name="estado" type="xsd:string"/>
           <xsd:element name="created_at" type="xsd:string"/>
         </xsd:all>
@@ -71,13 +71,13 @@
           <xsd:element name="id" type="xsd:int"/>
           <xsd:element name="bicicleta_codigo" type="xsd:string"/>
           <xsd:element name="bicicleta_tipo" type="xsd:string"/>
-          <xsd:element name="bicicleta_tarifa" type="xsd:string"/>
+          <xsd:element name="bicicleta_tarifa" type="xsd:decimal"/>
           <xsd:element name="cliente_documento" type="xsd:string"/>
           <xsd:element name="cliente_nombre" type="xsd:string"/>
           <xsd:element name="cliente_telefono" type="xsd:string"/>
           <xsd:element name="fecha_inicio" type="xsd:string"/>
           <xsd:element name="fecha_fin" type="xsd:string"/>
-          <xsd:element name="total" type="xsd:string"/>
+          <xsd:element name="total" type="xsd:decimal"/>
           <xsd:element name="estado" type="xsd:string"/>
         </xsd:all>
       </xsd:complexType>
@@ -786,6 +786,16 @@
          </data>\r
       </ins:registrarAlquiler>\r
    </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarAlquiler"/></con:call><con:call id="e4b802a2-8b62-4793-94dc-77c05960b222" name="Excepcion Controlada - Bicicleta Inexistente"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:registrarAlquiler soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertAlquiler">\r
+            <codigo_bicicleta xsi:type="xsd:string">BICI_NO_EXISTE_999</codigo_bicicleta>\r
+            <documento_cliente xsi:type="xsd:string">10101010</documento_cliente>\r
+         </data>\r
+      </ins:registrarAlquiler>\r
+   </soapenv:Body>\r
 </soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarAlquiler"/></con:call></con:operation><con:operation id="510b7699-4d86-4ddc-b3c3-12f4af48a377" isOneWay="false" action="http://127.0.0.1/server.php/registrarBicicleta" name="registrarBicicleta" bindingOperationName="registrarBicicleta" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6905c4a8-d378-437a-93eb-4c2fa71fd4d7" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
    <soapenv:Header/>\r
    <soapenv:Body>\r
@@ -794,8 +804,20 @@
             <!--You may enter the following 4 items in any order-->\r
             <codigo xsi:type="xsd:string">?</codigo>\r
             <tipo xsi:type="xsd:string">?</tipo>\r
-            <tarifa xsi:type="xsd:string">?</tarifa>\r
+            <tarifa xsi:type="xsd:decimal">?</tarifa>\r
             <estado xsi:type="xsd:string">?</estado>\r
+         </data>\r
+      </ins:registrarBicicleta>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://127.0.0.1/server.php/registrarBicicleta"/></con:call><con:call id="f3b901a1-9a71-4682-93cb-66b04859a111" name="Excepcion Controlada - Tarifa Invalida"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://127.0.0.1:8000/server.php</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ins="InsertUserSOAP">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ins:registrarBicicleta soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">\r
+         <data xsi:type="ins:InsertBicicleta">\r
+            <codigo xsi:type="xsd:string">BICI-TEST-FAULT</codigo>\r
+            <tipo xsi:type="xsd:string">Montaña</tipo>\r
+            <tarifa xsi:type="xsd:decimal">-25.00</tarifa>\r
+            <estado xsi:type="xsd:string">Disponible</estado>\r
          </data>\r
       </ins:registrarBicicleta>\r
    </soapenv:Body>\r

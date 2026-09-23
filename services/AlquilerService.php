@@ -1,6 +1,6 @@
 <?php
 // ==========================================================
-// 6.3 Servicios de Alquiler
+// 6.3 Servicios de Alquiler (con Excepciones Controladas)
 // ==========================================================
 
 /**
@@ -9,17 +9,18 @@
  * 1. Solo pueden alquilarse bicicletas disponibles.
  * 2. Una bicicleta alquilada debe cambiar automáticamente de estado.
  * 3. Cada alquiler debe quedar relacionado con un cliente.
+ * Manejo de Excepciones Controladas: ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
  */
 function registrarAlquiler($data) {
     global $pdo;
 
-    if (!$pdo) {
-        return "Error: La conexión a la base de datos no está disponible.";
-    }
-
     try {
         if (empty($data['codigo_bicicleta']) || empty($data['documento_cliente'])) {
-            return "Error: Debe proporcionar el código de la bicicleta y el documento del cliente.";
+            throw new ValidationException("Debe proporcionar el código de la bicicleta y el documento del cliente.", "PARAMETROS_INCOMPLETOS");
+        }
+
+        if (!$pdo) {
+            throw new DatabaseException("La conexión a la base de datos no está disponible.");
         }
 
         // 1. Validar que la bicicleta exista y verificar disponibilidad
@@ -29,12 +30,12 @@ function registrarAlquiler($data) {
         $bici = $stmtBici->fetch(PDO::FETCH_ASSOC);
 
         if (!$bici) {
-            return "Error: La bicicleta '" . $data['codigo_bicicleta'] . "' no existe.";
+            throw new NotFoundException("La bicicleta '" . $data['codigo_bicicleta'] . "' no existe en el sistema.", "BICICLETA_NO_ENCONTRADA");
         }
 
         // Criterio: Solo pueden alquilarse bicicletas disponibles
         if ($bici['estado'] !== 'Disponible') {
-            return "Error: La bicicleta '" . $data['codigo_bicicleta'] . "' NO está disponible (Estado actual: " . $bici['estado'] . ").";
+            throw new BusinessRuleException("La bicicleta '" . $data['codigo_bicicleta'] . "' NO está disponible para alquiler (Estado actual: " . $bici['estado'] . ").", "BICICLETA_NO_DISPONIBLE");
         }
 
         // 2. Validar que el cliente exista (Criterio: Cada alquiler debe quedar relacionado con un cliente)
@@ -44,7 +45,7 @@ function registrarAlquiler($data) {
         $cliente = $stmtCli->fetch(PDO::FETCH_ASSOC);
 
         if (!$cliente) {
-            return "Error: El cliente con documento '" . $data['documento_cliente'] . "' no existe. Debe registrarlo primero.";
+            throw new NotFoundException("El cliente con documento '" . $data['documento_cliente'] . "' no existe. Debe registrarlo previamente.", "CLIENTE_NO_ENCONTRADO");
         }
 
         // 3. Registrar el alquiler en la base de datos
@@ -63,23 +64,24 @@ function registrarAlquiler($data) {
 
         return "Alquiler registrado exitosamente. Cliente: " . $cliente['nombre'] . " (Doc: " . $cliente['documento'] . ") | Bicicleta: " . $bici['codigo'] . " (" . $bici['estado'] . " -> Alquilada).";
 
-    } catch (PDOException $e) {
-        return "Error: " . $e->getMessage();
+    } catch (Throwable $e) {
+        return handle_service_exception($e, 'registrarAlquiler');
     }
 }
 
 /**
  * Operación SOAP: consultarAlquileres
  * Criterio: Consultar todos los alquileres con datos del cliente y bicicleta.
+ * Manejo de Excepciones Controladas: DatabaseException.
  */
 function consultarAlquileres() {
     global $pdo;
 
-    if (!$pdo) {
-        return array();
-    }
-
     try {
+        if (!$pdo) {
+            throw new DatabaseException("La conexión a la base de datos no está disponible.");
+        }
+
         $sql = "SELECT a.id, 
                        b.codigo AS bicicleta_codigo, 
                        b.tipo AS bicicleta_tipo, 
@@ -116,8 +118,8 @@ function consultarAlquileres() {
         }
         return $result;
 
-    } catch (PDOException $e) {
-        return array();
+    } catch (Throwable $e) {
+        return handle_service_exception($e, 'consultarAlquileres');
     }
 }
 
@@ -130,16 +132,21 @@ function listarAlquileres() {
 
 /**
  * Operación SOAP adicional: finalizarAlquiler
- * Permite cerrar el alquiler, liquidar monto y volver la bicicleta a 'Disponible'
+ * Permite cerrar el alquiler, liquidar monto y volver la bicicleta a 'Disponible'.
+ * Manejo de Excepciones Controladas: ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
  */
 function finalizarAlquiler($codigo_bicicleta) {
     global $pdo;
 
-    if (!$pdo) {
-        return "Error: La conexión a la base de datos no está disponible.";
-    }
-
     try {
+        if (empty($codigo_bicicleta)) {
+            throw new ValidationException("Debe proporcionar el código de la bicicleta a finalizar.", "CODIGO_REQUERIDO");
+        }
+
+        if (!$pdo) {
+            throw new DatabaseException("La conexión a la base de datos no está disponible.");
+        }
+
         // 1. Buscar la bicicleta
         $stmtBici = $pdo->prepare("SELECT id, tarifa FROM bicicletas WHERE codigo = :codigo");
         $stmtBici->bindParam(':codigo', $codigo_bicicleta);
@@ -147,7 +154,7 @@ function finalizarAlquiler($codigo_bicicleta) {
         $bici = $stmtBici->fetch(PDO::FETCH_ASSOC);
 
         if (!$bici) {
-            return "Error: La bicicleta '$codigo_bicicleta' no existe.";
+            throw new NotFoundException("La bicicleta '$codigo_bicicleta' no existe.", "BICICLETA_NO_ENCONTRADA");
         }
 
         // 2. Buscar el alquiler activo
@@ -157,7 +164,7 @@ function finalizarAlquiler($codigo_bicicleta) {
         $alquiler = $stmtAlq->fetch(PDO::FETCH_ASSOC);
 
         if (!$alquiler) {
-            return "Error: No se encontró ningún alquiler activo para la bicicleta '$codigo_bicicleta'.";
+            throw new BusinessRuleException("No se encontró ningún alquiler activo para la bicicleta '$codigo_bicicleta'.", "ALQUILER_NO_ACTIVO");
         }
 
         // 3. Calcular horas y total a pagar (mínimo 1 hora)
@@ -188,7 +195,7 @@ function finalizarAlquiler($codigo_bicicleta) {
 
         return "Alquiler finalizado con éxito. Horas cobradas: $horas. Total a pagar: $" . number_format($total, 2) . ". Bicicleta disponible nuevamente.";
 
-    } catch (PDOException $e) {
-        return "Error: " . $e->getMessage();
+    } catch (Throwable $e) {
+        return handle_service_exception($e, 'finalizarAlquiler');
     }
 }

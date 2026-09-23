@@ -10,6 +10,7 @@
 
 // 0. Utilidades y configuración de codificación UTF-8
 require_once __DIR__ . '/helpers/utf8_helper.php';
+require_once __DIR__ . '/helpers/exceptions.php';
 
 // 1. Configuración del Servidor SOAP ($server, $namespace)
 require_once __DIR__ . '/config/soap_config.php';

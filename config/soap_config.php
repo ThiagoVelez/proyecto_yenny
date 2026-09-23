@@ -1,4 +1,14 @@
 <?php
+if (!isset($_SERVER['SERVER_NAME'])) {
+    $_SERVER['SERVER_NAME'] = '127.0.0.1';
+}
+if (!isset($_SERVER['SERVER_PORT'])) {
+    $_SERVER['SERVER_PORT'] = '8000';
+}
+if (!isset($_SERVER['REQUEST_URI'])) {
+    $_SERVER['REQUEST_URI'] = '/server.php';
+}
+
 require_once __DIR__ . '/../vendor/econea/nusoap/src/nusoap.php';
 
 // ==========================================================

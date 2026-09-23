@@ -20,5 +20,6 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->exec("SET NAMES 'utf8mb4'");
 } catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
+    error_log("Fallo de conexión a base de datos: " . $e->getMessage());
+    $pdo = null;
 }
