@@ -13,7 +13,7 @@ $server->wsdl->addComplexType(
     array(
         'codigo' => array('name' => 'codigo', 'type' => 'xsd:string'),
         'tipo'   => array('name' => 'tipo',   'type' => 'xsd:string'),
-        'tarifa' => array('name' => 'tarifa', 'type' => 'xsd:string'),
+        'tarifa' => array('name' => 'tarifa', 'type' => 'xsd:decimal'),
         'estado' => array('name' => 'estado', 'type' => 'xsd:string')
     )
 );
@@ -28,7 +28,7 @@ $server->wsdl->addComplexType(
     array(
         'codigo' => array('name' => 'codigo', 'type' => 'xsd:string'),
         'tipo'   => array('name' => 'tipo',   'type' => 'xsd:string'),
-        'tarifa' => array('name' => 'tarifa', 'type' => 'xsd:string'),
+        'tarifa' => array('name' => 'tarifa', 'type' => 'xsd:decimal'),
         'estado' => array('name' => 'estado', 'type' => 'xsd:string')
     )
 );
@@ -44,7 +44,7 @@ $server->wsdl->addComplexType(
         'id'         => array('name' => 'id',         'type' => 'xsd:int'),
         'codigo'     => array('name' => 'codigo',     'type' => 'xsd:string'),
         'tipo'       => array('name' => 'tipo',       'type' => 'xsd:string'),
-        'tarifa'     => array('name' => 'tarifa',     'type' => 'xsd:string'),
+        'tarifa'     => array('name' => 'tarifa',     'type' => 'xsd:decimal'),
         'estado'     => array('name' => 'estado',     'type' => 'xsd:string'),
         'created_at' => array('name' => 'created_at', 'type' => 'xsd:string')
     )
@@ -132,13 +132,13 @@ $server->wsdl->addComplexType(
         'id'                => array('name' => 'id',                'type' => 'xsd:int'),
         'bicicleta_codigo'  => array('name' => 'bicicleta_codigo',  'type' => 'xsd:string'),
         'bicicleta_tipo'    => array('name' => 'bicicleta_tipo',    'type' => 'xsd:string'),
-        'bicicleta_tarifa'  => array('name' => 'bicicleta_tarifa',  'type' => 'xsd:string'),
+        'bicicleta_tarifa'  => array('name' => 'bicicleta_tarifa',  'type' => 'xsd:decimal'),
         'cliente_documento' => array('name' => 'cliente_documento', 'type' => 'xsd:string'),
         'cliente_nombre'    => array('name' => 'cliente_nombre',    'type' => 'xsd:string'),
         'cliente_telefono'  => array('name' => 'cliente_telefono',  'type' => 'xsd:string'),
         'fecha_inicio'      => array('name' => 'fecha_inicio',      'type' => 'xsd:string'),
         'fecha_fin'         => array('name' => 'fecha_fin',         'type' => 'xsd:string'),
-        'total'             => array('name' => 'total',             'type' => 'xsd:string'),
+        'total'             => array('name' => 'total',             'type' => 'xsd:decimal'),
         'estado'            => array('name' => 'estado',            'type' => 'xsd:string')
     )
 );

@@ -104,13 +104,13 @@ function consultarAlquileres() {
                 'id'                => (int)$a['id'],
                 'bicicleta_codigo'  => (string)$a['bicicleta_codigo'],
                 'bicicleta_tipo'    => (string)$a['bicicleta_tipo'],
-                'bicicleta_tarifa'  => (string)$a['bicicleta_tarifa'],
+                'bicicleta_tarifa'  => number_format((float)$a['bicicleta_tarifa'], 2, '.', ''),
                 'cliente_documento' => (string)$a['cliente_documento'],
                 'cliente_nombre'    => (string)$a['cliente_nombre'],
                 'cliente_telefono'  => (string)$a['cliente_telefono'],
                 'fecha_inicio'      => (string)$a['fecha_inicio'],
                 'fecha_fin'         => (string)($a['fecha_fin'] ?? ''),
-                'total'             => (string)($a['total'] ?? '0.00'),
+                'total'             => $a['total'] !== null ? number_format((float)$a['total'], 2, '.', '') : '0.00',
                 'estado'            => (string)$a['estado']
             );
         }
@@ -169,12 +169,14 @@ function finalizarAlquiler($codigo_bicicleta) {
             $horas = 1;
         }
 
-        $total = $horas * floatval($bici['tarifa']);
+        $tarifaBase = floatval($bici['tarifa']);
+        $total = round($horas * $tarifaBase, 2);
+        $totalDecimal = number_format($total, 2, '.', '');
 
-        // 4. Actualizar el alquiler a 'Finalizado'
+        // 4. Actualizar el alquiler a 'Finalizado' con precisión decimal
         $sqlAlq = "UPDATE alquileres SET fecha_fin = NOW(), total = :total, estado = 'Finalizado', updated_at = NOW() WHERE id = :id";
         $updateAlq = $pdo->prepare($sqlAlq);
-        $updateAlq->bindParam(':total', $total);
+        $updateAlq->bindParam(':total', $totalDecimal);
         $updateAlq->bindParam(':id', $alquiler['id']);
         $updateAlq->execute();
 

@@ -29,7 +29,9 @@ CREATE TABLE `bicicletas` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `codigo` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Código único identificador de la bicicleta',
     `tipo` VARCHAR(50) NOT NULL COMMENT 'Ej: Montaña, Urbana, Ruta, Eléctrica',
-    `tarifa` DECIMAL(10, 2) NOT NULL COMMENT 'Tarifa base o por hora',
+    -- MODELO DE DATOS: tarifa modelada como DECIMAL(10, 2) (numérico exacto de punto fijo)
+    -- Justificación: Garantiza precisión monetaria absoluta sin pérdida de centavos por redondeo IEEE 754
+    `tarifa` DECIMAL(10, 2) NOT NULL COMMENT 'Tarifa base o por hora (numérico exacto)',
     `estado` ENUM(
         'Disponible',
         'Alquilada',
@@ -37,7 +39,8 @@ CREATE TABLE `bicicletas` (
         'Inactiva'
     ) NOT NULL DEFAULT 'Disponible',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT `chk_bicicleta_tarifa` CHECK (`tarifa` >= 0)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- ==========================================================
@@ -66,9 +69,9 @@ CREATE TABLE `alquileres` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
--- Restricciones de Clave Foránea
+-- Restricciones de Clave Foránea e Integridad de Dominio
 
-CONSTRAINT `fk_alquiler_bicicleta` 
+    CONSTRAINT `fk_alquiler_bicicleta` 
         FOREIGN KEY (`bicicleta_id`) 
         REFERENCES `bicicletas` (`id`) 
         ON UPDATE CASCADE 
@@ -78,7 +81,10 @@ CONSTRAINT `fk_alquiler_bicicleta`
         FOREIGN KEY (`cliente_id`) 
         REFERENCES `clientes` (`id`) 
         ON UPDATE CASCADE 
-        ON DELETE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT `chk_alquiler_total`
+        CHECK (`total` >= 0 OR `total` IS NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ==========================================================

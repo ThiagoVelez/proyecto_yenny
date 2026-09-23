@@ -17,9 +17,16 @@ function registrarBicicleta($data) {
     try {
         $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
 
-        if (empty($data['codigo']) || empty($data['tipo']) || empty($data['tarifa'])) {
-            return "Error: Código, tipo y tarifa son campos obligatorios.";
+        if (empty($data['codigo']) || empty($data['tipo'])) {
+            return "Error: Código y tipo son campos obligatorios.";
         }
+
+        // Criterio y Retroalimentación: Validar tarifa como valor numérico mayor o igual a cero
+        if (!isset($data['tarifa']) || $data['tarifa'] === '' || !is_numeric($data['tarifa']) || floatval($data['tarifa']) < 0) {
+            return "Error: La tarifa es obligatoria y debe ser un valor numérico mayor o igual a 0.";
+        }
+
+        $tarifa = number_format(round(floatval($data['tarifa']), 2), 2, '.', '');
 
         // Criterio: El código de bicicleta debe ser único
         $check = $pdo->prepare("SELECT id FROM bicicletas WHERE codigo = :codigo");
@@ -37,7 +44,7 @@ function registrarBicicleta($data) {
 
         $stmt->bindParam(':codigo', $data['codigo']);
         $stmt->bindParam(':tipo', $data['tipo']);
-        $stmt->bindParam(':tarifa', $data['tarifa']);
+        $stmt->bindParam(':tarifa', $tarifa);
         $stmt->bindParam(':estado', $estado);
 
         $stmt->execute();
@@ -74,7 +81,7 @@ function consultarBicicleta($codigo) {
             'id'         => (int)$bici['id'],
             'codigo'     => (string)$bici['codigo'],
             'tipo'       => (string)$bici['tipo'],
-            'tarifa'     => (string)$bici['tarifa'],
+            'tarifa'     => number_format((float)$bici['tarifa'], 2, '.', ''),
             'estado'     => (string)$bici['estado'],
             'created_at' => (string)$bici['created_at']
         );
@@ -104,7 +111,7 @@ function listarBicicletas() {
                 'id'         => (int)$b['id'],
                 'codigo'     => (string)$b['codigo'],
                 'tipo'       => (string)$b['tipo'],
-                'tarifa'     => (string)$b['tarifa'],
+                'tarifa'     => number_format((float)$b['tarifa'], 2, '.', ''),
                 'estado'     => (string)$b['estado'],
                 'created_at' => (string)$b['created_at']
             );
@@ -145,8 +152,17 @@ function actualizarBicicleta($data) {
 
         // Mantener valores previos si no se envían nuevos
         $tipo = !empty($data['tipo']) ? $data['tipo'] : $bici['tipo'];
-        $tarifa = !empty($data['tarifa']) ? $data['tarifa'] : $bici['tarifa'];
         $estado = !empty($data['estado']) ? $data['estado'] : $bici['estado'];
+
+        // Validación de tarifa numérica
+        if (isset($data['tarifa']) && $data['tarifa'] !== '') {
+            if (!is_numeric($data['tarifa']) || floatval($data['tarifa']) < 0) {
+                return "Error: La tarifa debe ser un valor numérico mayor o igual a 0.";
+            }
+            $tarifa = number_format(round(floatval($data['tarifa']), 2), 2, '.', '');
+        } else {
+            $tarifa = number_format((float)$bici['tarifa'], 2, '.', '');
+        }
 
         $sql = "UPDATE bicicletas SET tipo = :tipo, tarifa = :tarifa, estado = :estado, updated_at = NOW() WHERE codigo = :codigo";
         $update = $pdo->prepare($sql);
