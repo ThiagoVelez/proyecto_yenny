@@ -220,16 +220,20 @@ function wsse_authenticate($reset = false) {
 
         // ==========================================================
         // CONFIGURAR HEADER DE RESPUESTA SOAP (<SOAP-ENV:Header>)
-        // Muestra en la respuesta de SoapUI: usuario, token y permisos
+        // Muestra en la respuesta de SoapUI: WS-Security con usuario, token, rol y permisos
         // ==========================================================
         if (isset($server) && is_object($server)) {
             $tokenVal = !empty($user['token']) ? $user['token'] : $credential;
-            $server->responseHeaders = "<SecurityInfo>"
-                . "<usuario>" . htmlspecialchars($user['user_name'], ENT_XML1, 'UTF-8') . "</usuario>"
-                . "<token>" . htmlspecialchars($tokenVal, ENT_XML1, 'UTF-8') . "</token>"
-                . "<rol>" . htmlspecialchars($rol, ENT_XML1, 'UTF-8') . "</rol>"
-                . "<permisos>" . htmlspecialchars($permisos, ENT_XML1, 'UTF-8') . "</permisos>"
-                . "</SecurityInfo>";
+            $server->responseHeaders = '<wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">'
+                . '<wsse:UsernameToken>'
+                . '<wsse:Username>' . htmlspecialchars($user['user_name'], ENT_XML1, 'UTF-8') . '</wsse:Username>'
+                . '<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">' . htmlspecialchars($tokenVal, ENT_XML1, 'UTF-8') . '</wsse:Password>'
+                . '<usuario>' . htmlspecialchars($user['user_name'], ENT_XML1, 'UTF-8') . '</usuario>'
+                . '<token>' . htmlspecialchars($tokenVal, ENT_XML1, 'UTF-8') . '</token>'
+                . '<rol>' . htmlspecialchars($rol, ENT_XML1, 'UTF-8') . '</rol>'
+                . '<permisos>' . htmlspecialchars($permisos, ENT_XML1, 'UTF-8') . '</permisos>'
+                . '</wsse:UsernameToken>'
+                . '</wsse:Security>';
         }
 
         $authenticatedUser = $user;
