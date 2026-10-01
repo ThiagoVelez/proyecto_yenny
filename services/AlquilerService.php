@@ -1,7 +1,11 @@
 <?php
 // ==========================================================
-// 6.3 Servicios de Alquiler (con Excepciones Controladas)
+// 6.3 Servicios de Alquiler (con Token & Excepciones Controladas)
 // ==========================================================
+
+require_once __DIR__ . '/../token/ws_security.php';
+require_once __DIR__ . '/../helpers/exceptions.php';
+require_once __DIR__ . '/../helpers/utf8_helper.php';
 
 /**
  * Operación SOAP: registrarAlquiler
@@ -9,12 +13,18 @@
  * 1. Solo pueden alquilarse bicicletas disponibles.
  * 2. Una bicicleta alquilada debe cambiar automáticamente de estado.
  * 3. Cada alquiler debe quedar relacionado con un cliente.
- * Manejo de Excepciones Controladas: ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
  */
 function registrarAlquiler($data) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('registrarAlquiler');
+
+        $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
+
         if (empty($data['codigo_bicicleta']) || empty($data['documento_cliente'])) {
             throw new ValidationException("Debe proporcionar el código de la bicicleta y el documento del cliente.", "PARAMETROS_INCOMPLETOS");
         }
@@ -72,12 +82,16 @@ function registrarAlquiler($data) {
 /**
  * Operación SOAP: consultarAlquileres
  * Criterio: Consultar todos los alquileres con datos del cliente y bicicleta.
- * Manejo de Excepciones Controladas: DatabaseException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, DatabaseException.
  */
 function consultarAlquileres() {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('consultarAlquileres');
+
         if (!$pdo) {
             throw new DatabaseException("La conexión a la base de datos no está disponible.");
         }
@@ -133,12 +147,18 @@ function listarAlquileres() {
 /**
  * Operación SOAP adicional: finalizarAlquiler
  * Permite cerrar el alquiler, liquidar monto y volver la bicicleta a 'Disponible'.
- * Manejo de Excepciones Controladas: ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, ValidationException, NotFoundException, BusinessRuleException, DatabaseException.
  */
 function finalizarAlquiler($codigo_bicicleta) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('finalizarAlquiler');
+
+        $codigo_bicicleta = function_exists('utf8_converter') ? utf8_converter($codigo_bicicleta) : $codigo_bicicleta;
+
         if (empty($codigo_bicicleta)) {
             throw new ValidationException("Debe proporcionar el código de la bicicleta a finalizar.", "CODIGO_REQUERIDO");
         }

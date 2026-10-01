@@ -1,6 +1,7 @@
 <?php
 /**
  * Test automatizado para verificar la arquitectura de Excepciones Controladas en SOAP
+ * y la protección por Token criptográfico en el Header SOAP.
  */
 require_once __DIR__ . '/../helpers/utf8_helper.php';
 require_once __DIR__ . '/../helpers/exceptions.php';
@@ -58,7 +59,43 @@ $xml = $fault->serialize();
 assertCondition("SOAP Fault contiene tag <faultcode>Client</faultcode>", strpos($xml, '<faultcode') !== false && strpos($xml, 'Client') !== false);
 assertCondition("SOAP Fault contiene el mensaje de validación", strpos($xml, 'Dato requerido faltante') !== false);
 
-// 3. Simulación de ejecución de servicios con datos erróneos
+// 3. Verificación de protección por Token en el Header
+// 3.0 Bloqueo sin cabecera de seguridad
+unset($GLOBALS['RAW_POST_DATA']);
+unset($GLOBALS['HTTP_RAW_POST_DATA']);
+wsse_authenticate(true); // reset de caché
+
+$faultNoAuth = registrarBicicleta(array(
+    'codigo' => 'BICI_NOAUTH',
+    'tipo'   => 'Ruta',
+    'tarifa' => 15.00
+));
+assertCondition("Llamada sin token en cabecera es bloqueada con fallo SOAP de autenticación", $faultNoAuth instanceof soap_fault);
+if ($faultNoAuth instanceof soap_fault) {
+    assertCondition("Fallo contiene código de detalle TOKEN_AUTH_REQUIRED", strpos($faultNoAuth->serialize(), 'TOKEN_AUTH_REQUIRED') !== false);
+}
+
+// Iniciar sesión para obtener token válido y simular cabecera SOAP
+$tokenAdmin = LoginService('admin', 'admin123');
+$authHeaderXml = <<<XML
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+   <soapenv:Header>
+      <wsse:Security>
+         <wsse:UsernameToken>
+            <wsse:Username>admin</wsse:Username>
+            <wsse:Password>$tokenAdmin</wsse:Password>
+            <permisos>ADMIN</permisos>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body/>
+</soapenv:Envelope>
+XML;
+
+$GLOBALS['RAW_POST_DATA'] = $authHeaderXml;
+$GLOBALS['HTTP_RAW_POST_DATA'] = $authHeaderXml;
+wsse_authenticate(true); // reset e inicializar con el token activo
+
 // 3.1 Registrar bicicleta con tarifa negativa (debe retornar soap_fault)
 $faultBici = registrarBicicleta(array(
     'codigo' => 'BICI_ERR_01',
@@ -98,9 +135,18 @@ assertCondition("consultarCliente sin documento retorna soap_fault", $faultConsC
 $faultFinAlq = finalizarAlquiler('');
 assertCondition("finalizarAlquiler sin código retorna soap_fault", $faultFinAlq instanceof soap_fault);
 
-// 4. Verificación de procesamiento en el servidor SOAP completo (Payload XML)
+// 4. Verificación de procesamiento en el servidor SOAP completo (Payload XML con Header)
 $soapRequest = <<<XML
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="InsertUserSOAP">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:tns="InsertUserSOAP">
+   <SOAP-ENV:Header>
+      <wsse:Security>
+         <wsse:UsernameToken>
+            <wsse:Username>admin</wsse:Username>
+            <wsse:Password>$tokenAdmin</wsse:Password>
+            <permisos>ADMIN</permisos>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </SOAP-ENV:Header>
    <SOAP-ENV:Body>
       <tns:registrarBicicleta>
          <data>
@@ -118,12 +164,12 @@ $_SERVER['REQUEST_METHOD'] = 'POST';
 $_SERVER['CONTENT_TYPE'] = 'text/xml; charset=utf-8';
 $GLOBALS['RAW_POST_DATA'] = $soapRequest;
 $GLOBALS['HTTP_RAW_POST_DATA'] = $soapRequest;
+wsse_authenticate(true);
 
 ob_start();
 $server->service($soapRequest);
 $soapResponse = ob_get_clean();
 
-// echo "RESP: " . substr(strstr($soapResponse, '<SOAP-ENV:Body>'), 0, 400) . "\n";
 assertCondition("El servidor SOAP responde con <SOAP-ENV:Fault>", stripos($soapResponse, ':Fault>') !== false || stripos($soapResponse, '<fault>') !== false);
 assertCondition("El servidor SOAP indica faultcode Client", stripos($soapResponse, 'Client') !== false);
 assertCondition("El servidor SOAP incluye la descripción de la tarifa", stripos($soapResponse, 'tarifa es obligatoria') !== false);

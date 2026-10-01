@@ -230,13 +230,15 @@ CREATE TABLE IF NOT EXISTS `user` (
     `password` VARCHAR(255) NOT NULL COMMENT 'Contraseña encriptada (Bcrypt o SHA-256)',
     `token` VARCHAR(64) DEFAULT NULL COMMENT 'Token criptográfico de 64 caracteres hex',
     `token_date` DATETIME DEFAULT NULL COMMENT 'Fecha y hora de generación del token (NOW())',
+    `rol` VARCHAR(50) DEFAULT 'USUARIO' COMMENT 'Rol del usuario (ADMIN, OPERADOR, USUARIO)',
+    `permisos` VARCHAR(255) DEFAULT 'CONSULTAR' COMMENT 'Permisos específicos del usuario en el sistema',
     `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro',
     INDEX `idx_user_token` (`token`),
     INDEX `idx_user_login` (`user_name`),
     CONSTRAINT `fk_user_doc_type` FOREIGN KEY (`doc_type_id`) REFERENCES `document_type` (`id`) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
--- Usuarios Iniciales con Contraseñas Encriptadas
+-- Usuarios Iniciales con Contraseñas Encriptadas, Roles y Permisos
 INSERT INTO
     `user` (
         `user_name`,
@@ -247,7 +249,9 @@ INSERT INTO
         `phone`,
         `password`,
         `token`,
-        `token_date`
+        `token_date`,
+        `rol`,
+        `permisos`
     )
 VALUES (
         'admin',
@@ -258,7 +262,9 @@ VALUES (
         '3001112233',
         '$2y$10$X86/QeI4rX4B51wB6M0DqONbCskV2Y4/8u5x6n7U8dYh7b2hS6VqG', -- Bcrypt para 'admin123'
         NULL,
-        NULL
+        NULL,
+        'ADMIN',
+        'CREAR, CONSULTAR, ACTUALIZAR, ELIMINAR (ADMIN)'
     ),
     (
         'operador',
@@ -269,9 +275,13 @@ VALUES (
         '3104445566',
         SHA2('operador123', 256), -- SHA-256 de MySQL para 'operador123'
         NULL,
-        NULL
+        NULL,
+        'OPERADOR',
+        'CONSULTAR, ALQUILAR (OPERADOR)'
     ) AS new
 ON DUPLICATE KEY UPDATE
     `password` = new.`password`,
     `address` = new.`address`,
-    `phone` = new.`phone`;
+    `phone` = new.`phone`,
+    `rol` = new.`rol`,
+    `permisos` = new.`permisos`;

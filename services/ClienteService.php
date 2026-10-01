@@ -1,12 +1,19 @@
 <?php
 // ==========================================================
-// 6.2 Servicios de Cliente (con Excepciones Controladas)
+// 6.2 Servicios de Cliente (con Token & Excepciones Controladas)
 // ==========================================================
+
+require_once __DIR__ . '/../token/ws_security.php';
+require_once __DIR__ . '/../helpers/exceptions.php';
+require_once __DIR__ . '/../helpers/utf8_helper.php';
 
 function InsertClienteService($data) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('registrarCliente');
+
         $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
 
         if (empty($data['documento']) || empty($data['nombre'])) {
@@ -47,6 +54,9 @@ function ConsultarClientesService() {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('listarClientes');
+
         if (!$pdo) {
             throw new DatabaseException("La conexión a la base de datos no está disponible.");
         }
@@ -79,6 +89,9 @@ function consultarCliente($documento) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('consultarCliente');
+
         $documento = function_exists('utf8_converter') ? utf8_converter($documento) : $documento;
         if (empty($documento)) {
             throw new ValidationException("Debe proporcionar un documento para la consulta.", "DOCUMENTO_REQUERIDO");

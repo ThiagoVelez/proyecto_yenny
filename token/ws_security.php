@@ -1,11 +1,12 @@
 <?php
 // ==========================================================
 // PROYECTO: Servidor SOAP Modular
-// MÓDULO: Estándar WS-Security en el Header (<soap:Header>)
+// MÓDULO: Estándar WS-Security & Consumo de Token en el Header (<soap:Header>)
 // ARCHIVO: token/ws_security.php
 // ==========================================================
 
 require_once __DIR__ . '/token.php';
+require_once __DIR__ . '/../helpers/exceptions.php';
 
 /**
  * Verificación de Contraseñas (Soporte Dual: Bcrypt y SHA-256 de MySQL)
@@ -40,26 +41,23 @@ function verify_user_password($inputPassword, $storedHash) {
 }
 
 /**
- * Extracción de credenciales WS-Security del sobre SOAP (<soap:Header>)
- * Tal como lo solicitó la profesora en las diapositivas sobre WS-Security:
- *
- * <soapenv:Header>
- *    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
- *       <wsse:UsernameToken>
- *          <wsse:Username>nombre_usuario</wsse:Username>
- *          <wsse:Password>contraseña_o_token</wsse:Password>
- *       </wsse:UsernameToken>
- *    </wsse:Security>
- * </soapenv:Header>
+ * Extracción de credenciales WS-Security o Header de Autenticación del sobre SOAP (<soap:Header>)
+ * Admite:
+ * 1. Estándar WS-Security (<wsse:Security><wsse:UsernameToken>...)
+ * 2. Header de Autenticación personalizado (<AuthHeader><usuario>...<token>...<permisos>...)
+ * 3. Etiquetas directas en el Header (<usuario>, <token>, <permisos>)
  *
  * @param string|null $rawXml XML completo de la petición SOAP
- * @return array|null ['username' => ..., 'password_or_token' => ...] o null si no se encuentra
+ * @return array|null ['username' => ..., 'password_or_token' => ..., 'permisos' => ...] o null
  */
 function extract_wsse_credentials($rawXml = null) {
     global $RAW_POST_DATA, $server;
 
     if ($rawXml === null && isset($RAW_POST_DATA)) {
         $rawXml = $RAW_POST_DATA;
+    }
+    if ($rawXml === null && isset($GLOBALS['HTTP_RAW_POST_DATA'])) {
+        $rawXml = $GLOBALS['HTTP_RAW_POST_DATA'];
     }
     if ($rawXml === null) {
         $rawXml = file_get_contents("php://input");
@@ -71,17 +69,28 @@ function extract_wsse_credentials($rawXml = null) {
         $dom = new DOMDocument();
         if ($dom->loadXML($rawXml, LIBXML_NOERROR | LIBXML_NOWARNING)) {
             $xpath = new DOMXPath($dom);
-            $usernameNodes = $xpath->query("//*[local-name()='Header']//*[local-name()='Security']//*[local-name()='UsernameToken']//*[local-name()='Username']");
-            $passwordNodes = $xpath->query("//*[local-name()='Header']//*[local-name()='Security']//*[local-name()='UsernameToken']//*[local-name()='Password']");
+            
+            // Buscar username / usuario / user_name
+            $usernameNodes = $xpath->query("//*[local-name()='Header']//*[local-name()='Username' or local-name()='user_name' or local-name()='usuario']");
+            
+            // Buscar password / token / clave
+            $passwordNodes = $xpath->query("//*[local-name()='Header']//*[local-name()='Password' or local-name()='token' or local-name()='clave' or local-name()='password']");
+            
+            // Buscar permisos / rol / role
+            $permisosNodes = $xpath->query("//*[local-name()='Header']//*[local-name()='permisos' or local-name()='permiso' or local-name()='rol' or local-name()='role']");
 
-            if ($usernameNodes->length > 0 && $passwordNodes->length > 0) {
-                $username = trim($usernameNodes->item(0)->nodeValue ?? '');
-                $credential = trim($passwordNodes->item(0)->nodeValue ?? '');
-                libxml_clear_errors();
-                libxml_use_internal_errors($prevErrors);
+            $username = $usernameNodes->length > 0 ? trim($usernameNodes->item(0)->nodeValue ?? '') : '';
+            $credential = $passwordNodes->length > 0 ? trim($passwordNodes->item(0)->nodeValue ?? '') : '';
+            $permisos = $permisosNodes->length > 0 ? trim($permisosNodes->item(0)->nodeValue ?? '') : '';
+
+            libxml_clear_errors();
+            libxml_use_internal_errors($prevErrors);
+
+            if ($credential !== '') {
                 return array(
                     'username'          => $username,
-                    'password_or_token' => $credential
+                    'password_or_token' => $credential,
+                    'permisos'          => $permisos
                 );
             }
         }
@@ -91,13 +100,16 @@ function extract_wsse_credentials($rawXml = null) {
         // Intento 2: Expresión regular en caso de variaciones de cabecera
         if (preg_match('/<[a-zA-Z0-9_\-:]*Header[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*Header>/is', $rawXml, $headerMatches)) {
             $headerContent = $headerMatches[1];
-            $uFound = preg_match('/<[a-zA-Z0-9_\-:]*Username[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*Username>/is', $headerContent, $uMatches);
-            $pFound = preg_match('/<[a-zA-Z0-9_\-:]*Password[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*Password>/is', $headerContent, $pMatches);
+            
+            $uFound = preg_match('/<[a-zA-Z0-9_\-:]*(?:Username|user_name|usuario)[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*(?:Username|user_name|usuario)>/is', $headerContent, $uMatches);
+            $pFound = preg_match('/<[a-zA-Z0-9_\-:]*(?:Password|token|clave|password)[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*(?:Password|token|clave|password)>/is', $headerContent, $pMatches);
+            $permFound = preg_match('/<[a-zA-Z0-9_\-:]*(?:permisos|permiso|rol|role)[^>]*>(.*?)<\/[a-zA-Z0-9_\-:]*(?:permisos|permiso|rol|role)>/is', $headerContent, $permMatches);
 
-            if ($uFound && $pFound) {
+            if ($pFound) {
                 return array(
-                    'username'          => trim(html_entity_decode($uMatches[1], ENT_QUOTES | ENT_XML1, 'UTF-8')),
-                    'password_or_token' => trim(html_entity_decode($pMatches[1], ENT_QUOTES | ENT_XML1, 'UTF-8'))
+                    'username'          => $uFound ? trim(html_entity_decode($uMatches[1], ENT_QUOTES | ENT_XML1, 'UTF-8')) : '',
+                    'password_or_token' => trim(html_entity_decode($pMatches[1], ENT_QUOTES | ENT_XML1, 'UTF-8')),
+                    'permisos'          => $permFound ? trim(html_entity_decode($permMatches[1], ENT_QUOTES | ENT_XML1, 'UTF-8')) : ''
                 );
             }
         }
@@ -106,16 +118,19 @@ function extract_wsse_credentials($rawXml = null) {
     // Intento 3: Inspeccionar array interno de NuSOAP si fue parseado
     if (isset($server) && is_object($server) && isset($server->requestHeader) && is_array($server->requestHeader)) {
         $nusoapHeader = $server->requestHeader;
-        $sec = $nusoapHeader['Security'] ?? ($nusoapHeader['wsse:Security'] ?? null);
+        $sec = $nusoapHeader['Security'] ?? ($nusoapHeader['wsse:Security'] ?? ($nusoapHeader['AuthHeader'] ?? $nusoapHeader));
         if (is_array($sec)) {
-            $ut = $sec['UsernameToken'] ?? ($sec['wsse:UsernameToken'] ?? null);
+            $ut = $sec['UsernameToken'] ?? ($sec['wsse:UsernameToken'] ?? $sec);
             if (is_array($ut)) {
-                $username   = $ut['Username'] ?? ($ut['wsse:Username'] ?? '');
-                $credential = $ut['Password'] ?? ($ut['wsse:Password'] ?? '');
-                if ($username !== '' && $credential !== '') {
+                $username   = $ut['Username'] ?? ($ut['wsse:Username'] ?? ($ut['usuario'] ?? ($ut['user_name'] ?? '')));
+                $credential = $ut['Password'] ?? ($ut['wsse:Password'] ?? ($ut['token'] ?? ($ut['clave'] ?? '')));
+                $permisos   = $ut['permisos'] ?? ($ut['rol'] ?? '');
+
+                if ($credential !== '') {
                     return array(
                         'username'          => is_array($username) ? ($username['!'] ?? '') : (string)$username,
-                        'password_or_token' => is_array($credential) ? ($credential['!'] ?? '') : (string)$credential
+                        'password_or_token' => is_array($credential) ? ($credential['!'] ?? '') : (string)$credential,
+                        'permisos'          => is_array($permisos) ? ($permisos['!'] ?? '') : (string)$permisos
                     );
                 }
             }
@@ -126,54 +141,121 @@ function extract_wsse_credentials($rawXml = null) {
 }
 
 /**
- * Validador de Seguridad WS-Security para métodos CRUD.
- * Verifica si el usuario y su contraseña_o_token son válidos en MySQL.
+ * Validador de Seguridad y Consumo de Token para todos los métodos y consultas SOAP.
+ * Verifica si el usuario y su token son válidos en MySQL y añade la cabecera
+ * de respuesta con usuario, token y permisos.
  *
+ * @param bool $reset Forzar reinicio de caché de autenticación para pruebas
  * @return array|false Retorna los datos del usuario autenticado si es válido, o false si se rechaza.
  */
-function wsse_authenticate() {
-    global $pdo;
+function wsse_authenticate($reset = false) {
+    global $pdo, $server;
+    static $authenticatedUser = null;
+
+    if ($reset) {
+        $authenticatedUser = null;
+        return false;
+    }
+
+    if ($authenticatedUser !== null) {
+        return $authenticatedUser;
+    }
 
     if (!$pdo) {
         return false;
     }
 
     $creds = extract_wsse_credentials();
-    if (!$creds || empty($creds['username']) || empty($creds['password_or_token'])) {
+    if (!$creds || empty($creds['password_or_token'])) {
         return false;
     }
 
-    $username   = $creds['username'];
-    $credential = $creds['password_or_token'];
+    $username   = trim((string)$creds['username']);
+    $credential = trim((string)$creds['password_or_token']);
 
     try {
-        $stmt = $pdo->prepare("SELECT id, user_name, password, token, token_date FROM user WHERE user_name = :user_name");
-        $stmt->execute(array(':user_name' => $username));
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = false;
 
-        if ($user) {
-            // A. Validar si la credencial coincide con el TOKEN ACTIVO del usuario
-            if (!empty($user['token']) && hash_equals($user['token'], $credential)) {
-                return $user;
-            }
+        // 1. Si se especificó nombre de usuario, buscar primero por user_name
+        if (!empty($username)) {
+            $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE user_name = :user_name LIMIT 1");
+            $stmt->execute(array(':user_name' => $username));
+            $found = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // B. Validar si la credencial coincide con la CONTRASEÑA del usuario (Bcrypt o SHA-256)
-            if (!empty($user['password']) && verify_user_password($credential, $user['password'])) {
-                return $user;
+            if ($found) {
+                // A. Validar si la credencial coincide con el TOKEN ACTIVO del usuario
+                if (!empty($found['token']) && hash_equals($found['token'], $credential)) {
+                    $user = $found;
+                }
+                // B. Validar si la credencial coincide con la CONTRASEÑA del usuario (Bcrypt o SHA-256)
+                elseif (!empty($found['password']) && verify_user_password($credential, $found['password'])) {
+                    $user = $found;
+                }
             }
         }
 
-        // C. Validación por token si se envió como credencial directa
-        $stmtToken = $pdo->prepare("SELECT id, user_name, password, token, token_date FROM user WHERE token = :token");
-        $stmtToken->execute(array(':token' => $credential));
-        $userByToken = $stmtToken->fetch(PDO::FETCH_ASSOC);
-        if ($userByToken && ($userByToken['user_name'] === $username || empty($username))) {
-            return $userByToken;
+        // 2. Si no se autenticó por username (o no vino username), buscar directamente por token
+        if (!$user) {
+            $stmtToken = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE token = :token LIMIT 1");
+            $stmtToken->execute(array(':token' => $credential));
+            $foundToken = $stmtToken->fetch(PDO::FETCH_ASSOC);
+
+            if ($foundToken) {
+                if (empty($username) || strcasecmp($foundToken['user_name'], $username) === 0) {
+                    $user = $foundToken;
+                }
+            }
         }
 
-        return false;
+        if (!$user) {
+            return false;
+        }
+
+        // Normalizar rol y permisos
+        $rol = !empty($user['rol']) ? $user['rol'] : (($user['user_name'] === 'admin') ? 'ADMIN' : 'OPERADOR');
+        $permisos = !empty($user['permisos']) ? $user['permisos'] : (($user['user_name'] === 'admin') ? 'CREAR, CONSULTAR, ACTUALIZAR, ELIMINAR (ADMIN)' : 'CONSULTAR, ALQUILAR');
+
+        $user['rol'] = $rol;
+        $user['permisos'] = $permisos;
+
+        // ==========================================================
+        // CONFIGURAR HEADER DE RESPUESTA SOAP (<SOAP-ENV:Header>)
+        // Muestra en la respuesta de SoapUI: usuario, token y permisos
+        // ==========================================================
+        if (isset($server) && is_object($server)) {
+            $tokenVal = !empty($user['token']) ? $user['token'] : $credential;
+            $server->responseHeaders = "<SecurityInfo>"
+                . "<usuario>" . htmlspecialchars($user['user_name'], ENT_XML1, 'UTF-8') . "</usuario>"
+                . "<token>" . htmlspecialchars($tokenVal, ENT_XML1, 'UTF-8') . "</token>"
+                . "<rol>" . htmlspecialchars($rol, ENT_XML1, 'UTF-8') . "</rol>"
+                . "<permisos>" . htmlspecialchars($permisos, ENT_XML1, 'UTF-8') . "</permisos>"
+                . "</SecurityInfo>";
+        }
+
+        $authenticatedUser = $user;
+        return $user;
 
     } catch (PDOException $e) {
+        error_log("Error en wsse_authenticate: " . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Función middleware/helper para obligar autenticación por token en métodos de servicio.
+ * Si no está autenticado, lanza AuthenticationException para generar un SOAP Fault estándar.
+ *
+ * @param string $action Nombre de la operación para trazabilidad
+ * @return array Datos del usuario autenticado
+ * @throws AuthenticationException Si no hay cabecera con token válido
+ */
+function require_token_authentication($action = '') {
+    $user = wsse_authenticate();
+    if (!$user) {
+        throw new AuthenticationException(
+            "Acceso no autorizado a '$action': Se requiere cabecera de seguridad con usuario y token activo.",
+            "TOKEN_AUTH_REQUIRED"
+        );
+    }
+    return $user;
 }

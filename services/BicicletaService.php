@@ -1,17 +1,25 @@
 <?php
 // ==========================================================
-// 6.1 Servicios de Bicicleta (con Excepciones Controladas)
+// 6.1 Servicios de Bicicleta (con Token & Excepciones Controladas)
 // ==========================================================
+
+require_once __DIR__ . '/../token/ws_security.php';
+require_once __DIR__ . '/../helpers/exceptions.php';
+require_once __DIR__ . '/../helpers/utf8_helper.php';
 
 /**
  * Operación SOAP: registrarBicicleta
  * Criterios: Almacena en MySQL, código debe ser único, tarifa válida.
- * Manejo de Excepciones Controladas: ValidationException, BusinessRuleException, DatabaseException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, ValidationException, BusinessRuleException, DatabaseException.
  */
 function registrarBicicleta($data) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('registrarBicicleta');
+
         $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
 
         // 1. Validaciones de cliente (fail-fast)
@@ -61,12 +69,16 @@ function registrarBicicleta($data) {
 /**
  * Operación SOAP: consultarBicicleta
  * Criterio: Debe poder consultarse una bicicleta determinada por su código.
- * Manejo de Excepciones Controladas: NotFoundException, ValidationException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, NotFoundException, ValidationException.
  */
 function consultarBicicleta($codigo) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('consultarBicicleta');
+
         $codigo = function_exists('utf8_converter') ? utf8_converter($codigo) : $codigo;
         if (empty($codigo)) {
             throw new ValidationException("Debe proporcionar un código de bicicleta para la consulta.", "CODIGO_REQUERIDO");
@@ -102,12 +114,16 @@ function consultarBicicleta($codigo) {
 /**
  * Operación SOAP: listarBicicletas
  * Criterio: Debe existir una operación para listar bicicletas en formato XML.
- * Manejo de Excepciones Controladas: DatabaseException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, DatabaseException.
  */
 function listarBicicletas() {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('listarBicicletas');
+
         if (!$pdo) {
             throw new DatabaseException("La conexión a la base de datos no está disponible.");
         }
@@ -135,12 +151,16 @@ function listarBicicletas() {
 /**
  * Operación SOAP: actualizarBicicleta
  * Criterio: Debe poder modificarse tipo, tarifa o estado.
- * Manejo de Excepciones Controladas: ValidationException, NotFoundException.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, ValidationException, NotFoundException.
  */
 function actualizarBicicleta($data) {
     global $pdo;
 
     try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('actualizarBicicleta');
+
         $data = function_exists('utf8_converter') ? utf8_converter($data) : $data;
 
         if (empty($data['codigo'])) {
