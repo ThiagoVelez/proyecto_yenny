@@ -260,7 +260,7 @@ VALUES (
         '10101010',
         'Calle 100 # 10-20',
         '3001112233',
-        '$2y$10$X86/QeI4rX4B51wB6M0DqONbCskV2Y4/8u5x6n7U8dYh7b2hS6VqG', -- Bcrypt para 'admin123'
+        '$2y$10$eRPF6tIlHrxXLlWtIh4AUOAaiT85g9lAwqBKQudYQ5Un0qLiA9C9S', -- Bcrypt para 'admin123'
         NULL,
         NULL,
         'ADMIN',
