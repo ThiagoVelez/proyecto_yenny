@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
+@ini_set('display_errors', '0');
 /**
  * ==========================================================
  * PROYECTO: Servidor SOAP Modular
@@ -32,6 +34,15 @@ require_once __DIR__ . '/services/UserService.php';
 
 // 5. Registro de operaciones del servicio SOAP ($server->register)
 require_once __DIR__ . '/routes/soap_register.php';
+require_once __DIR__ . '/helpers/wsdl_enhancer.php';
+
+// Si se solicita el WSDL (?wsdl), enriquecerlo con las definiciones de cabecera de seguridad
+if (isset($_GET['wsdl']) || (isset($_SERVER['QUERY_STRING']) && strcasecmp($_SERVER['QUERY_STRING'], 'wsdl') === 0)) {
+    header("Content-Type: text/xml; charset=UTF-8");
+    $rawWsdl = $server->wsdl->serialize();
+    echo enrich_wsdl_with_security_header($rawWsdl);
+    exit();
+}
 
 // 7. Procesar y responder a la solicitud SOAP
 $POST_DATA = file_get_contents("php://input");

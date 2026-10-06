@@ -1,0 +1,133 @@
+{
+  "info": {
+    "_postman_id": "corte2-cobros-penalidades-api",
+    "name": "Proyecto Corte 2 - API REST Cobros y Penalidades",
+    "description": "Colección de pruebas para la API RESTful de Cobros y Penalidades integrada con el servicio Web SOAP previo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Cobros",
+      "item": [
+        {
+          "name": "POST Generar Cobro (Valida con SOAP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idAlquiler\": 1,\n  \"montoPenalidad\": 5000.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cobros",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cobros"]
+            },
+            "description": "Genera un nuevo cobro. La API REST consulta el alquiler en el servicio Web SOAP para verificar existencia, duración y tarifa."
+          }
+        },
+        {
+          "name": "GET Consultar Detalle de Cobro",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cobros/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cobros", "1"]
+            },
+            "description": "Consulta el detalle del cobro, monto total, saldo pendiente y lista de pagos abonados."
+          }
+        },
+        {
+          "name": "GET Consultar Cobros por Alquiler",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cobros/alquiler/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cobros", "alquiler", "1"]
+            },
+            "description": "Obtiene el historial de cobros asociados a un alquiler específico."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Pagos",
+      "item": [
+        {
+          "name": "POST Registrar Pago de Cobro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCobro\": 1,\n  \"metodoPago\": \"TARJETA\",\n  \"montoPagado\": 25000.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pagos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pagos"]
+            },
+            "description": "Registra un pago para un cobro existente. Actualiza el cobro a PAGADO si el saldo acumulado cubre el monto total."
+          }
+        },
+        {
+          "name": "GET Consultar Pagos por Cobro",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pagos/cobro/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pagos", "cobro", "1"]
+            },
+            "description": "Consulta todos los pagos y abonos realizados sobre un cobro determinado."
+          }
+        }
+      ]
+    }
+  ]
+}

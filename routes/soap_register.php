@@ -95,6 +95,30 @@ $server->register(
     'Alias para listar todos los alquileres registrados'
 );
 
+// 7. consultarAlquilerPorId()
+$server->register(
+    'consultarAlquilerPorId',
+    array('id' => 'xsd:int'),
+    array('return' => 'tns:AlquilerData'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Consulta los datos de un alquiler específico por su ID'
+);
+
+// Alias: consultarAlquiler()
+$server->register(
+    'consultarAlquiler',
+    array('id' => 'xsd:int'),
+    array('return' => 'tns:AlquilerData'),
+    $namespace,
+    false,
+    'rpc',
+    'encoded',
+    'Alias para consultar un alquiler por ID'
+);
+
 // Operación adicional: finalizarAlquiler()
 $server->register(
     'finalizarAlquiler',

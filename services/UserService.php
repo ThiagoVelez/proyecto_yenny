@@ -26,7 +26,7 @@ if (!function_exists('user_soap_error')) {
  * @param array $data ['user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone', 'password']
  * @return string Mensaje de confirmación o -1 ante error/autenticación fallida.
  */
-function InsertUserService($data) {
+function InsertUserService($data = null) {
     global $pdo;
 
     // Validación obligatoria de WS-Security en cabecera
@@ -96,7 +96,7 @@ function InsertUserService($data) {
  * @param array $data ['id', 'user_name', 'lastname', 'doc_type_id', 'num_doc', 'address', 'phone', 'password' (opcional)]
  * @return string Mensaje de confirmación o -1 en caso de fallo.
  */
-function UpdateUserService($data) {
+function UpdateUserService($data = null) {
     global $pdo;
 
     // Validación obligatoria de WS-Security en cabecera
@@ -188,7 +188,7 @@ function UpdateUserService($data) {
  * @param int|array $id ID del usuario
  * @return string Mensaje de confirmación o -1 en caso de fallo.
  */
-function DeleteUserService($id) {
+function DeleteUserService($id = null) {
     global $pdo;
 
     // Validación obligatoria de WS-Security en cabecera
@@ -238,7 +238,7 @@ function DeleteUserService($id) {
  * @param int|array $id ID del usuario
  * @return array|soapval Datos del usuario o -1 si falla / no existe.
  */
-function SelectUserService($id) {
+function SelectUserService($id = null) {
     global $pdo;
 
     // Validación obligatoria de WS-Security en cabecera
@@ -338,19 +338,19 @@ function ListUsersService($param = null) {
 // ==========================================================
 // Alias descriptivos en Español para interoperabilidad
 // ==========================================================
-function insertarUsuario($data) {
+function insertarUsuario($data = null) {
     return InsertUserService($data);
 }
 
-function actualizarUsuario($data) {
+function actualizarUsuario($data = null) {
     return UpdateUserService($data);
 }
 
-function eliminarUsuario($id) {
+function eliminarUsuario($id = null) {
     return DeleteUserService($id);
 }
 
-function seleccionarUsuario($id) {
+function seleccionarUsuario($id = null) {
     return SelectUserService($id);
 }
 

@@ -285,3 +285,40 @@ ON DUPLICATE KEY UPDATE
     `phone` = new.`phone`,
     `rol` = new.`rol`,
     `permisos` = new.`permisos`;
+
+-- ==========================================================
+-- 8. CORTE 2: API REST DE COBROS Y PENALIDADES (MICROSERVICIO)
+-- ==========================================================
+
+-- Tabla de Cobros
+CREATE TABLE IF NOT EXISTS `cobros` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del cobro',
+    `idAlquiler` INT NOT NULL COMMENT 'Identificador del alquiler correspondiente (obtenido desde el servicio SOAP)',
+    `montoBase` DECIMAL(10, 2) NOT NULL COMMENT 'Monto calculado por el tiempo de alquiler',
+    `montoPenalidad` DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT 'Monto adicional aplicable por retraso o daños',
+    `montoTotal` DECIMAL(10, 2) NOT NULL COMMENT 'Suma del monto base y penalidades',
+    `estado` ENUM('PENDIENTE', 'PAGADO', 'CANCELADO') NOT NULL DEFAULT 'PENDIENTE' COMMENT 'Estado del cobro',
+    `fechaEmision` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de generación del cobro',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_cobro_alquiler` (`idAlquiler`),
+    INDEX `idx_cobro_estado` (`estado`),
+    CONSTRAINT `chk_cobro_monto_base` CHECK (`montoBase` >= 0),
+    CONSTRAINT `chk_cobro_monto_penalidad` CHECK (`montoPenalidad` >= 0),
+    CONSTRAINT `chk_cobro_monto_total` CHECK (`montoTotal` >= 0)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+-- Tabla de Pagos de Cobro
+CREATE TABLE IF NOT EXISTS `pago_cobros` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del pago',
+    `idCobro` INT NOT NULL COMMENT 'Identificador del cobro asociado',
+    `fechaPago` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora en que se realiza el pago',
+    `metodoPago` ENUM('TARJETA', 'TRANSFERENCIA', 'EFECTIVO') NOT NULL COMMENT 'Método utilizado',
+    `montoPagado` DECIMAL(10, 2) NOT NULL COMMENT 'Valor abonado al cobro',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_pago_cobro_id` (`idCobro`),
+    INDEX `idx_pago_metodo` (`metodoPago`),
+    CONSTRAINT `chk_pago_monto` CHECK (`montoPagado` > 0),
+    CONSTRAINT `fk_pago_cobro_ref` FOREIGN KEY (`idCobro`) REFERENCES `cobros` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

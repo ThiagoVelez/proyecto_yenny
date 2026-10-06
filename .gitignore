@@ -1,0 +1,11 @@
+# Sistema y editores
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Laravel específico (manejado por laravel/.gitignore)
+laravel/.env
+laravel/vendor/
+laravel/storage/*.key

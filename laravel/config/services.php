@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'soap' => [
+        'url' => env('SOAP_SERVER_URL', 'http://127.0.0.1:8000/server.php'),
+        'namespace' => env('SOAP_NAMESPACE', 'InsertUserSOAP'),
+        'username' => env('SOAP_USERNAME', 'admin'),
+        'password' => env('SOAP_PASSWORD', 'admin123'),
+        'timeout' => env('SOAP_TIMEOUT', 10),
+    ],
+
 ];

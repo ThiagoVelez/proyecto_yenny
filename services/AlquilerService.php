@@ -145,6 +145,79 @@ function listarAlquileres() {
 }
 
 /**
+ * Operación SOAP: consultarAlquilerPorId
+ * Criterio: Consulta los datos completos de un alquiler específico por ID.
+ * Seguridad: Requiere Token activo en el Header SOAP.
+ * Manejo de Excepciones Controladas: AuthenticationException, ValidationException, NotFoundException, DatabaseException.
+ */
+function consultarAlquilerPorId($id) {
+    global $pdo;
+
+    try {
+        // Validación obligatoria de Token en el Header
+        require_token_authentication('consultarAlquilerPorId');
+
+        $id = (int)$id;
+        if ($id <= 0) {
+            throw new ValidationException("Debe proporcionar un identificador de alquiler válido mayor a 0.", "ID_INVALIDO");
+        }
+
+        if (!$pdo) {
+            throw new DatabaseException("La conexión a la base de datos no está disponible.");
+        }
+
+        $sql = "SELECT a.id, 
+                       b.codigo AS bicicleta_codigo, 
+                       b.tipo AS bicicleta_tipo, 
+                       b.tarifa AS bicicleta_tarifa,
+                       c.documento AS cliente_documento, 
+                       c.nombre AS cliente_nombre, 
+                       c.telefono AS cliente_telefono,
+                       a.fecha_inicio, 
+                       a.fecha_fin, 
+                       a.total, 
+                       a.estado
+                FROM alquileres a
+                INNER JOIN bicicletas b ON a.bicicleta_id = b.id
+                INNER JOIN clientes c ON a.cliente_id = c.id
+                WHERE a.id = :id
+                LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $a = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$a) {
+            throw new NotFoundException("El alquiler con ID $id no existe en el sistema.", "ALQUILER_NO_ENCONTRADO");
+        }
+
+        return array(
+            'id'                => (int)$a['id'],
+            'bicicleta_codigo'  => (string)$a['bicicleta_codigo'],
+            'bicicleta_tipo'    => (string)$a['bicicleta_tipo'],
+            'bicicleta_tarifa'  => number_format((float)$a['bicicleta_tarifa'], 2, '.', ''),
+            'cliente_documento' => (string)$a['cliente_documento'],
+            'cliente_nombre'    => (string)$a['cliente_nombre'],
+            'cliente_telefono'  => (string)$a['cliente_telefono'],
+            'fecha_inicio'      => (string)$a['fecha_inicio'],
+            'fecha_fin'         => (string)($a['fecha_fin'] ?? ''),
+            'total'             => $a['total'] !== null ? number_format((float)$a['total'], 2, '.', '') : '0.00',
+            'estado'            => (string)$a['estado']
+        );
+
+    } catch (Throwable $e) {
+        return handle_service_exception($e, 'consultarAlquilerPorId');
+    }
+}
+
+/**
+ * Alias de consultarAlquilerPorId
+ */
+function consultarAlquiler($id) {
+    return consultarAlquilerPorId($id);
+}
+
+/**
  * Operación SOAP adicional: finalizarAlquiler
  * Permite cerrar el alquiler, liquidar monto y volver la bicicleta a 'Disponible'.
  * Seguridad: Requiere Token activo en el Header SOAP.
