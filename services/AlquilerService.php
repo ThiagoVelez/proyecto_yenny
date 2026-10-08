@@ -116,6 +116,19 @@ function consultarAlquileres() {
 
         $result = array();
         foreach ($alquileres as $a) {
+            $inicio = !empty($a['fecha_inicio']) ? new DateTime($a['fecha_inicio']) : null;
+            $fin = !empty($a['fecha_fin']) ? new DateTime($a['fecha_fin']) : new DateTime();
+            $horas = 1;
+            if ($inicio) {
+                $diff = $inicio->diff($fin);
+                $horas = ($diff->days * 24) + $diff->h + ($diff->i > 0 ? 1 : 0);
+                if ($horas < 1) {
+                    $horas = 1;
+                }
+            } elseif ((float)$a['bicicleta_tarifa'] > 0 && (float)$a['total'] > 0) {
+                $horas = (int) round((float)$a['total'] / (float)$a['bicicleta_tarifa']);
+            }
+
             $result[] = array(
                 'id'                => (int)$a['id'],
                 'bicicleta_codigo'  => (string)$a['bicicleta_codigo'],
@@ -126,6 +139,7 @@ function consultarAlquileres() {
                 'cliente_telefono'  => (string)$a['cliente_telefono'],
                 'fecha_inicio'      => (string)$a['fecha_inicio'],
                 'fecha_fin'         => (string)($a['fecha_fin'] ?? ''),
+                'horas'             => (int)$horas,
                 'total'             => $a['total'] !== null ? number_format((float)$a['total'], 2, '.', '') : '0.00',
                 'estado'            => (string)$a['estado']
             );
@@ -191,6 +205,19 @@ function consultarAlquilerPorId($id) {
             throw new NotFoundException("El alquiler con ID $id no existe en el sistema.", "ALQUILER_NO_ENCONTRADO");
         }
 
+        $inicio = !empty($a['fecha_inicio']) ? new DateTime($a['fecha_inicio']) : null;
+        $fin = !empty($a['fecha_fin']) ? new DateTime($a['fecha_fin']) : new DateTime();
+        $horas = 1;
+        if ($inicio) {
+            $diff = $inicio->diff($fin);
+            $horas = ($diff->days * 24) + $diff->h + ($diff->i > 0 ? 1 : 0);
+            if ($horas < 1) {
+                $horas = 1;
+            }
+        } elseif ((float)$a['bicicleta_tarifa'] > 0 && (float)$a['total'] > 0) {
+            $horas = (int) round((float)$a['total'] / (float)$a['bicicleta_tarifa']);
+        }
+
         return array(
             'id'                => (int)$a['id'],
             'bicicleta_codigo'  => (string)$a['bicicleta_codigo'],
@@ -201,6 +228,7 @@ function consultarAlquilerPorId($id) {
             'cliente_telefono'  => (string)$a['cliente_telefono'],
             'fecha_inicio'      => (string)$a['fecha_inicio'],
             'fecha_fin'         => (string)($a['fecha_fin'] ?? ''),
+            'horas'             => (int)$horas,
             'total'             => $a['total'] !== null ? number_format((float)$a['total'], 2, '.', '') : '0.00',
             'estado'            => (string)$a['estado']
         );

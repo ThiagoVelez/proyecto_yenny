@@ -138,6 +138,7 @@ $server->wsdl->addComplexType(
         'cliente_telefono'  => array('name' => 'cliente_telefono',  'type' => 'xsd:string'),
         'fecha_inicio'      => array('name' => 'fecha_inicio',      'type' => 'xsd:string'),
         'fecha_fin'         => array('name' => 'fecha_fin',         'type' => 'xsd:string'),
+        'horas'             => array('name' => 'horas',             'type' => 'xsd:int'),
         'total'             => array('name' => 'total',             'type' => 'xsd:decimal'),
         'estado'            => array('name' => 'estado',            'type' => 'xsd:string')
     )

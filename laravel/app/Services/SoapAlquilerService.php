@@ -7,6 +7,10 @@ use DateTime;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+if (file_exists(base_path('../helpers/SoapAdapter.php'))) {
+    require_once base_path('../helpers/SoapAdapter.php');
+}
+
 class SoapAlquilerService
 {
     protected string $url;
@@ -233,6 +237,7 @@ XML;
             'cliente_telefono'  => $getValue('cliente_telefono'),
             'fecha_inicio'      => $getValue('fecha_inicio'),
             'fecha_fin'         => $getValue('fecha_fin') ?: null,
+            'horas'             => (int) ($getValue('horas') ?: 0),
             'total'             => (float) ($getValue('total') ?: 0.0),
             'estado'            => $getValue('estado'),
         ];
@@ -249,28 +254,49 @@ XML;
      */
     public function calcularTarifas(array $alquiler, float $montoPenalidad = 0.0, ?float $montoBaseOverride = null): array
     {
+        $tarifa = (float) ($alquiler['bicicleta_tarifa'] ?? 0.0);
+
+        // 1. Determinar horas transcurridas o liquidadas
+        if (!empty($alquiler['horas']) && (int)$alquiler['horas'] > 0) {
+            $horas = (int) $alquiler['horas'];
+        } else {
+            $inicio = !empty($alquiler['fecha_inicio']) ? new DateTime($alquiler['fecha_inicio']) : null;
+            $fin = !empty($alquiler['fecha_fin']) ? new DateTime($alquiler['fecha_fin']) : null;
+
+            if ($inicio && $fin) {
+                $diff = $inicio->diff($fin);
+                $horas = ($diff->days * 24) + $diff->h + ($diff->i > 0 ? 1 : 0);
+            } elseif ($inicio) {
+                $diff = $inicio->diff(new DateTime());
+                $horas = ($diff->days * 24) + $diff->h + ($diff->i > 0 ? 1 : 0);
+            } else {
+                $horas = 0;
+            }
+        }
+
+        // 2. Determinar monto base
         if ($montoBaseOverride !== null && $montoBaseOverride >= 0) {
             $montoBase = round($montoBaseOverride, 2);
-            $horas = 0;
+            if ($horas <= 0 && $tarifa > 0) {
+                $horas = (int) round($montoBase / $tarifa);
+            }
         } else {
             // Si el alquiler ya fue liquidado en SOAP y tiene un total > 0, tomar ese total base
             if (!empty($alquiler['total']) && (float)$alquiler['total'] > 0) {
                 $montoBase = (float) $alquiler['total'];
-                $horas = 0;
+                if ($horas <= 0 && $tarifa > 0) {
+                    $horas = (int) round($montoBase / $tarifa);
+                }
             } else {
-                // Calcular diferencia entre fecha_inicio y fecha_fin o fecha actual
-                $inicio = !empty($alquiler['fecha_inicio']) ? new DateTime($alquiler['fecha_inicio']) : new DateTime();
-                $fin = !empty($alquiler['fecha_fin']) ? new DateTime($alquiler['fecha_fin']) : new DateTime();
-
-                $diff = $inicio->diff($fin);
-                $horas = ($diff->days * 24) + $diff->h + ($diff->i > 0 ? 1 : 0);
                 if ($horas < 1) {
                     $horas = 1;
                 }
-
-                $tarifa = (float) ($alquiler['bicicleta_tarifa'] ?? 0.0);
                 $montoBase = round($horas * $tarifa, 2);
             }
+        }
+
+        if ($horas < 1) {
+            $horas = 1;
         }
 
         $penalidad = max(0.0, round($montoPenalidad, 2));
