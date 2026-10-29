@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cobro;
+use App\Repositories\Contracts\CobroRepositoryInterface;
 use App\Services\SoapAlquilerService;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Validator;
 class CobroController extends Controller
 {
     protected SoapAlquilerService $soapService;
+    protected CobroRepositoryInterface $cobroRepository;
 
-    public function __construct(SoapAlquilerService $soapService)
+    public function __construct(SoapAlquilerService $soapService, CobroRepositoryInterface $cobroRepository)
     {
         $this->soapService = $soapService;
+        $this->cobroRepository = $cobroRepository;
     }
 
     /**
@@ -70,10 +72,7 @@ class CobroController extends Controller
         }
 
         // 3. Verificar si ya existe un cobro pendiente o pagado para este alquiler
-        $cobroExistente = Cobro::where('idAlquiler', $idAlquiler)
-            ->whereIn('estado', ['PENDIENTE', 'PAGADO'])
-            ->latest('id')
-            ->first();
+        $cobroExistente = $this->cobroRepository->findActiveByAlquiler($idAlquiler);
 
         if ($cobroExistente && !$request->boolean('forzarNuevoCobro')) {
             return response()->json([
@@ -94,7 +93,7 @@ class CobroController extends Controller
         $tarifas = $this->soapService->calcularTarifas($alquilerSoap, $montoPenalidad, $montoBaseOverride);
 
         // 5. Registrar el nuevo cobro en la base de datos
-        $cobro = Cobro::create([
+        $cobro = $this->cobroRepository->create([
             'idAlquiler'     => $idAlquiler,
             'montoBase'      => $tarifas['montoBase'],
             'montoPenalidad' => $tarifas['montoPenalidad'],
@@ -135,7 +134,7 @@ class CobroController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $cobro = Cobro::with('pagos')->find($id);
+        $cobro = $this->cobroRepository->findWithPagos($id);
 
         if (!$cobro) {
             return response()->json([
@@ -181,10 +180,7 @@ class CobroController extends Controller
             ], 400);
         }
 
-        $cobros = Cobro::with('pagos')
-            ->where('idAlquiler', $idAlquiler)
-            ->orderBy('id', 'desc')
-            ->get();
+        $cobros = $this->cobroRepository->getByAlquilerWithPagos($idAlquiler);
 
         return response()->json([
             'success'    => true,

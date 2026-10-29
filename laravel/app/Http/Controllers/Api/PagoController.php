@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cobro;
 use App\Models\PagoCobro;
+use App\Repositories\Contracts\CobroRepositoryInterface;
+use App\Repositories\Contracts\PagoCobroRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,17 @@ use Illuminate\Support\Facades\Validator;
 
 class PagoController extends Controller
 {
+    protected CobroRepositoryInterface $cobroRepository;
+    protected PagoCobroRepositoryInterface $pagoCobroRepository;
+
+    public function __construct(
+        CobroRepositoryInterface $cobroRepository,
+        PagoCobroRepositoryInterface $pagoCobroRepository
+    ) {
+        $this->cobroRepository = $cobroRepository;
+        $this->pagoCobroRepository = $pagoCobroRepository;
+    }
+
     /**
      * POST /api/pagos
      * Registrar el pago de un cobro existente.
@@ -45,7 +58,8 @@ class PagoController extends Controller
         $montoPagado = (float) $request->input('montoPagado');
 
         // 1. Validar existencia del cobro
-        $cobro = Cobro::find($idCobro);
+        /** @var Cobro|null $cobro */
+        $cobro = $this->cobroRepository->findById($idCobro);
         if (!$cobro) {
             return response()->json([
                 'success' => false,
@@ -84,19 +98,15 @@ class PagoController extends Controller
         }
 
         // 5. Registrar el pago dentro de una transacción de base de datos
+        /** @var PagoCobro $pago */
         $pago = DB::transaction(function () use ($cobro, $metodoPago, $montoPagado) {
-            $nuevoPago = PagoCobro::create([
-                'idCobro'     => $cobro->id,
-                'fechaPago'   => now(),
-                'metodoPago'  => $metodoPago,
-                'montoPagado' => $montoPagado,
-            ]);
+            $nuevoPago = $this->pagoCobroRepository->registrarPago($cobro->id, $metodoPago, $montoPagado);
 
             // Si el total acumulado cubre el monto total, actualizar estado a PAGADO
-            $totalAcumulado = (float) $cobro->pagos()->sum('montoPagado');
+            $totalAcumulado = $this->pagoCobroRepository->sumPagosByCobro($cobro->id);
             if ($totalAcumulado >= ((float) $cobro->montoTotal - 0.01)) {
+                $this->cobroRepository->updateEstado($cobro->id, 'PAGADO');
                 $cobro->estado = 'PAGADO';
-                $cobro->save();
             }
 
             return $nuevoPago;
@@ -137,7 +147,8 @@ class PagoController extends Controller
             ], 400);
         }
 
-        $cobro = Cobro::find($idCobro);
+        /** @var Cobro|null $cobro */
+        $cobro = $this->cobroRepository->findById($idCobro);
         if (!$cobro) {
             return response()->json([
                 'success' => false,
@@ -145,9 +156,7 @@ class PagoController extends Controller
             ], 404);
         }
 
-        $pagos = PagoCobro::where('idCobro', $idCobro)
-            ->orderBy('id', 'asc')
-            ->get();
+        $pagos = $this->pagoCobroRepository->getByCobro($idCobro);
 
         return response()->json([
             'success'     => true,
