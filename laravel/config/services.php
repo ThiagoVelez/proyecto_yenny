@@ -41,6 +41,7 @@ return [
         'username' => env('SOAP_USERNAME', 'admin'),
         'password' => env('SOAP_PASSWORD', 'admin123'),
         'timeout' => env('SOAP_TIMEOUT', 10),
+        'jwt_secret' => env('SOAP_JWT_SECRET', 'fallback_secret_simetrico_minimo_32_caracteres_12345'),
     ],
 
 ];

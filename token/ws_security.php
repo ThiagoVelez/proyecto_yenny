@@ -6,6 +6,7 @@
 // ==========================================================
 
 require_once __DIR__ . '/token.php';
+require_once __DIR__ . '/jwt_validator.php';
 require_once __DIR__ . '/../helpers/exceptions.php';
 
 /**
@@ -159,6 +160,38 @@ function wsse_authenticate($reset = false) {
 
     if ($authenticatedUser !== null) {
         return $authenticatedUser;
+    }
+
+    // Intento 0: Si viene un Bearer token JWT en cabeceras HTTP
+    $bearerToken = extract_jwt_bearer_token();
+    if ($bearerToken !== null) {
+        $decoded = validate_soap_jwt_token(null, $bearerToken);
+        $username = $decoded->user_name ?? ($decoded->sub ?? '');
+        $rol = $decoded->rol ?? 'ADMIN';
+        $permisos = $decoded->permisos ?? 'CREAR, CONSULTAR, ACTUALIZAR, ELIMINAR (ADMIN)';
+
+        if (!empty($username) && $pdo) {
+            $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE user_name = :user_name LIMIT 1");
+            $stmt->execute(array(':user_name' => (string)$username));
+            $found = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($found) {
+                $user = $found;
+                $user['rol'] = !empty($user['rol']) ? $user['rol'] : $rol;
+                $user['permisos'] = !empty($user['permisos']) ? $user['permisos'] : $permisos;
+                $authenticatedUser = $user;
+                return $user;
+            }
+        }
+
+        $user = array(
+            'id'        => (int)($decoded->id ?? 1),
+            'user_name' => !empty($username) ? (string)$username : 'jwt_user',
+            'rol'       => $rol,
+            'permisos'  => $permisos,
+            'token'     => $bearerToken,
+        );
+        $authenticatedUser = $user;
+        return $user;
     }
 
     if (!$pdo) {

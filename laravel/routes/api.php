@@ -2,7 +2,25 @@
 
 use App\Http\Controllers\Api\CobroController;
 use App\Http\Controllers\Api\PagoController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes - Autenticación con Sanctum
+|--------------------------------------------------------------------------
+|
+| Ruta publica para obtener un token Bearer.
+| Las rutas protegidas requieren el header Authorization: Bearer TOKEN.
+|
+*/
+
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+});
 
 /*
 |--------------------------------------------------------------------------

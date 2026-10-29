@@ -6,6 +6,20 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit1dc4bc7c2021c9006f1b6c08488354fc
 {
+    public static $prefixLengthsPsr4 = array (
+        'F' =>
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'Firebase\\JWT\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'XMLSchema' => __DIR__ . '/..' . '/econea/nusoap/src/nusoap.php',
@@ -33,6 +47,8 @@ class ComposerStaticInit1dc4bc7c2021c9006f1b6c08488354fc
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1dc4bc7c2021c9006f1b6c08488354fc::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1dc4bc7c2021c9006f1b6c08488354fc::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit1dc4bc7c2021c9006f1b6c08488354fc::$classMap;
 
         }, null, ClassLoader::class);

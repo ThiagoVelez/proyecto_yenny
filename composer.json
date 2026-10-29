@@ -1,5 +1,6 @@
 {
     "require": {
-        "econea/nusoap": "^0.9.20"
+        "econea/nusoap": "^0.9.20",
+        "firebase/php-jwt": "^7.2"
     }
 }

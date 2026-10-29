@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
 @ini_set('display_errors', '0');
 /**
@@ -11,6 +11,9 @@ error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING & ~E_NOTICE);
  */
 
 // 0. Utilidades y configuración de codificación UTF-8
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 require_once __DIR__ . '/helpers/utf8_helper.php';
 require_once __DIR__ . '/helpers/exceptions.php';
 require_once __DIR__ . '/helpers/SoapAdapter.php';

@@ -115,10 +115,20 @@ class SoapAlquilerService
 XML;
 
         try {
-            $response = Http::withHeaders([
+            $headers = [
                 'Content-Type' => 'text/xml; charset=utf-8',
                 'SOAPAction'   => $this->namespace,
-            ])->timeout($this->timeout)->send('POST', $this->url, [
+            ];
+
+            try {
+                $jwtService = app(SoapJwtService::class);
+                $token = $jwtService->generateToken(['sub' => $this->username, 'user_name' => $this->username]);
+                $headers['Authorization'] = 'Bearer ' . $token;
+            } catch (\Throwable $jwtError) {
+                Log::warning("No se pudo adjuntar cabecera JWT a la peticion SOAP: " . $jwtError->getMessage());
+            }
+
+            $response = Http::withHeaders($headers)->timeout($this->timeout)->send('POST', $this->url, [
                 'body' => $envelope,
             ]);
 
