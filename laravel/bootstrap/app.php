@@ -13,7 +13,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // PENDIENTE DE ACTIVACION: descomentar junto con las clases de app/Http/Middleware.
+        // $middleware->api(prepend: [
+        //     \App\Http\Middleware\ForzarRespuestaJson::class,
+        //     \App\Http\Middleware\RegistrarPeticionApi::class,
+        // ]);
         //
+        // $middleware->alias([
+        //     'capacidad.token' => \App\Http\Middleware\VerificarCapacidadToken::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
