@@ -15,6 +15,7 @@
  */
 
 require_once __DIR__ . '/utf8_helper.php';
+require_once __DIR__ . '/../token/token.php';
 
 class SoapAdapter
 {
@@ -257,7 +258,7 @@ class SoapAdapter
         // 2. Verificación en base de datos si se provee $pdo
         if ($pdo !== null) {
             try {
-                $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, token, token_date FROM user WHERE token = :token LIMIT 1");
+                $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, token, token_date, TIMESTAMPDIFF(SECOND, token_date, NOW()) AS token_age_seconds FROM user WHERE token = :token LIMIT 1");
                 $stmt->execute([':token' => $token]);
                 $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
@@ -266,6 +267,14 @@ class SoapAdapter
                         'valid'   => false,
                         'error'   => 'TOKEN_NO_ENCONTRADO_BD',
                         'message' => 'El token no existe o no se encuentra activo en la base de datos.',
+                    ];
+                }
+
+                if (is_token_expired($user['token_age_seconds'])) {
+                    return [
+                        'valid'   => false,
+                        'error'   => 'TOKEN_VENCIDO',
+                        'message' => 'El token ha vencido. Inicie sesión nuevamente con LoginService.',
                     ];
                 }
 

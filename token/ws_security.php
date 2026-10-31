@@ -142,6 +142,22 @@ function extract_wsse_credentials($rawXml = null) {
 }
 
 /**
+ * Rechaza con un SOAP Fault específico el token que coincide pero ya venció,
+ * para que el cliente sepa que debe volver a ejecutar LoginService.
+ *
+ * @param array $user Fila del usuario con la columna calculada token_age_seconds
+ * @throws AuthenticationException Si el token superó su tiempo de vigencia
+ */
+function reject_expired_token(array $user) {
+    if (is_token_expired($user['token_age_seconds'] ?? null)) {
+        throw new AuthenticationException(
+            "El token ha vencido. Inicie sesión nuevamente con LoginService.",
+            "TOKEN_EXPIRED"
+        );
+    }
+}
+
+/**
  * Validador de Seguridad y Consumo de Token para todos los métodos y consultas SOAP.
  * Verifica si el usuario y su token son válidos en MySQL y añade la cabecera
  * de respuesta con usuario, token y permisos.
@@ -211,13 +227,14 @@ function wsse_authenticate($reset = false) {
 
         // 1. Si se especificó nombre de usuario, buscar primero por user_name
         if (!empty($username)) {
-            $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE user_name = :user_name LIMIT 1");
+            $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date, TIMESTAMPDIFF(SECOND, token_date, NOW()) AS token_age_seconds FROM user WHERE user_name = :user_name LIMIT 1");
             $stmt->execute(array(':user_name' => $username));
             $found = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($found) {
                 // A. Validar si la credencial coincide con el TOKEN ACTIVO del usuario
                 if (!empty($found['token']) && hash_equals($found['token'], $credential)) {
+                    reject_expired_token($found);
                     $user = $found;
                 }
                 // B. Validar si la credencial coincide con la CONTRASEÑA del usuario (Bcrypt o SHA-256)
@@ -229,12 +246,13 @@ function wsse_authenticate($reset = false) {
 
         // 2. Si no se autenticó por username (o no vino username), buscar directamente por token
         if (!$user) {
-            $stmtToken = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE token = :token LIMIT 1");
+            $stmtToken = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date, TIMESTAMPDIFF(SECOND, token_date, NOW()) AS token_age_seconds FROM user WHERE token = :token LIMIT 1");
             $stmtToken->execute(array(':token' => $credential));
             $foundToken = $stmtToken->fetch(PDO::FETCH_ASSOC);
 
             if ($foundToken) {
                 if (empty($username) || strcasecmp($foundToken['user_name'], $username) === 0) {
+                    reject_expired_token($foundToken);
                     $user = $foundToken;
                 }
             }
