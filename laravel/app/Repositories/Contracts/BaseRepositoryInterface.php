@@ -50,3 +50,4 @@ interface BaseRepositoryInterface
      */
     public function delete(int $id): bool;
 }
+

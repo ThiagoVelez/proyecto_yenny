@@ -43,3 +43,4 @@ interface CobroRepositoryInterface extends BaseRepositoryInterface
      */
     public function updateEstado(int $id, string $estado): bool;
 }
+

@@ -36,9 +36,20 @@ class AuthController extends Controller
         // El token creado solo admite la operacion de consulta.
         $token = $user->createToken('postman-clase', ['personas:leer']);
 
+        // Generar token JWT simetrico compatible con el servidor SOAP
+        $soapJwtService = app(\App\Services\SoapJwtService::class);
+        $soapJwt = $soapJwtService->generateToken([
+            'sub'       => (string) $user->id,
+            'user_name' => 'admin',
+            'email'     => $user->email,
+            'rol'       => 'ADMIN',
+            'permisos'  => 'CREAR, CONSULTAR, ACTUALIZAR, ELIMINAR (ADMIN)',
+        ]);
+
         return response()->json([
-            'token_type'   => 'Bearer',
-            'access_token' => $token->plainTextToken,
+            'token_type'     => 'Bearer',
+            'access_token'   => $token->plainTextToken,
+            'soap_jwt_token' => $soapJwt,
         ], 200);
     }
 

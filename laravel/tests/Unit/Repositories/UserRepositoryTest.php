@@ -41,3 +41,4 @@ class UserRepositoryTest extends TestCase
         $this->assertNull($notFound);
     }
 }
+

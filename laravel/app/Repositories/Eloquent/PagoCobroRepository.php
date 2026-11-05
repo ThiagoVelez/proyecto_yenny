@@ -53,3 +53,4 @@ class PagoCobroRepository extends BaseRepository implements PagoCobroRepositoryI
         return $pago;
     }
 }
+

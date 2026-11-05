@@ -222,6 +222,41 @@ function wsse_authenticate($reset = false) {
     $username   = trim((string)$creds['username']);
     $credential = trim((string)$creds['password_or_token']);
 
+    // Intento 0.1: Si la credencial en el Header WS-Security es un Token JWT
+    if (substr_count($credential, '.') === 2) {
+        try {
+            $decoded = validate_soap_jwt_token(null, $credential);
+            $uname = $decoded->user_name ?? ($decoded->sub ?? ($username ?: 'admin'));
+            $rol = $decoded->rol ?? 'ADMIN';
+            $permisos = $decoded->permisos ?? 'CREAR, CONSULTAR, ACTUALIZAR, ELIMINAR (ADMIN)';
+
+            if (!empty($uname) && $pdo) {
+                $stmt = $pdo->prepare("SELECT id, user_name, rol, permisos, password, token, token_date FROM user WHERE user_name = :user_name LIMIT 1");
+                $stmt->execute(array(':user_name' => (string)$uname));
+                $found = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($found) {
+                    $user = $found;
+                    $user['rol'] = !empty($user['rol']) ? $user['rol'] : $rol;
+                    $user['permisos'] = !empty($user['permisos']) ? $user['permisos'] : $permisos;
+                    $authenticatedUser = $user;
+                    return $user;
+                }
+            }
+
+            $user = array(
+                'id'        => (int)($decoded->id ?? 1),
+                'user_name' => !empty($uname) ? (string)$uname : 'jwt_user',
+                'rol'       => $rol,
+                'permisos'  => $permisos,
+                'token'     => $credential,
+            );
+            $authenticatedUser = $user;
+            return $user;
+        } catch (\Throwable $e) {
+            // Continuar con validacion estandar si falla la firma
+        }
+    }
+
     try {
         $user = false;
 

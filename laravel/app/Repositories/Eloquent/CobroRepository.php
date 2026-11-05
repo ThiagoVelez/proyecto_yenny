@@ -66,3 +66,4 @@ class CobroRepository extends BaseRepository implements CobroRepositoryInterface
         return $cobro->save();
     }
 }
+

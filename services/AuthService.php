@@ -74,14 +74,14 @@ function LoginService($user_name, $password = null) {
  * 2. Servicio ValidateTokenService
  * Valida si un token existe y está activo en la base de datos.
  *
- * @param string|array $token Token de 64 caracteres
- * @return string "1" si es válido y activo, o "-1" si no existe / es inválido
+ * @param string|array $token Token de 64 caracteres o Token JWT simétrico
+ * @return string "Token valido" si es válido y activo, o "Token no valido" si no existe / es inválido
  */
 function ValidateTokenService($token) {
     global $pdo;
 
     if (!$pdo) {
-        return "-1";
+        return "Token no valido";
     }
 
     if (is_array($token)) {
@@ -90,15 +90,30 @@ function ValidateTokenService($token) {
 
     $token = trim((string)$token);
 
-    if ($token === '' || strlen($token) !== 64) {
-        return "-1";
+    if ($token === '') {
+        return "Token no valido";
+    }
+
+    // 1. Soporte para Token JWT Simetrico (HS256)
+    if (substr_count($token, '.') === 2) {
+        try {
+            $decoded = validate_soap_jwt_token(null, $token);
+            return $decoded ? "Token valido" : "Token no valido";
+        } catch (\Throwable $e) {
+            return "Token no valido";
+        }
+    }
+
+    // 2. Soporte para Token Criptografico de 64 caracteres hex
+    if (strlen($token) !== 64) {
+        return "Token no valido";
     }
 
     try {
         $user = validate_token_in_db($pdo, $token);
-        return $user ? "1" : "-1";
+        return $user ? "Token valido" : "Token no valido";
     } catch (PDOException $e) {
-        return "-1";
+        return "Token no valido";
     }
 }
 

@@ -36,3 +36,4 @@ interface PagoCobroRepositoryInterface extends BaseRepositoryInterface
      */
     public function registrarPago(int $idCobro, string $metodoPago, float $montoPagado): PagoCobro;
 }
+

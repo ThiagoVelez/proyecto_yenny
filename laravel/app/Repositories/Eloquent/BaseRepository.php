@@ -73,3 +73,4 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return (bool) $record->delete();
     }
 }
+
