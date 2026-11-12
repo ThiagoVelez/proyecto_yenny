@@ -44,3 +44,4 @@ class IsAdministrator
         return $next($request);
     }
 }
+

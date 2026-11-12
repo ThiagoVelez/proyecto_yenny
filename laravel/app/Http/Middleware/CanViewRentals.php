@@ -105,3 +105,4 @@ class CanViewRentals
         return (string) ($request->route()?->getActionMethod() ?: 'consultarcobrosporalquiler');
     }
 }
+

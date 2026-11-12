@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'can.manage.charges'   => \App\Http\Middleware\CanManageCharges::class,
             'can.process.payments' => \App\Http\Middleware\CanProcessPayments::class,
             'can.view.rentals'     => \App\Http\Middleware\CanViewRentals::class,
+            'registrar.peticion'   => \App\Http\Middleware\RegistrarPeticionApi::class,
+            'capacidad.token'      => \App\Http\Middleware\VerificarCapacidadToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
