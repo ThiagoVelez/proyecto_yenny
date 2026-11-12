@@ -357,3 +357,4 @@ class RoleMiddlewareSecurityTest extends TestCase
         $this->actingAs($this->clienteUser)->getJson("/api/cobros/{$cobro->id}")->assertStatus(200);
     }
 }
+
