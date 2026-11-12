@@ -10,6 +10,16 @@ use Tests\TestCase;
 class SoapLiveIntegrationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'admin',
+        ]);
+        $this->actingAs($admin);
+    }
     /**
      * Test de integración en vivo:
      * Verifica que el microservicio Laravel se comunica efectivamente

@@ -13,6 +13,16 @@ use Tests\TestCase;
 class CobrosPagosApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $admin = \App\Models\User::factory()->create([
+            'role' => 'admin',
+        ]);
+        $this->actingAs($admin);
+    }
     /**
      * Test POST /api/cobros genera un cobro consumiendo el servicio SOAP.
      */

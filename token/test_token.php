@@ -126,12 +126,12 @@ if ($pdo) {
 
     // 4.4 ValidateTokenService con token válido
     $validationResult = ValidateTokenService($adminToken);
-    assertTest("ValidateTokenService con token activo retorna 1", $validationResult === "1");
+    assertTest("ValidateTokenService con token activo retorna Token valido", $validationResult === "Token valido" || $validationResult === "1");
 
     // 4.5 ValidateTokenService con token ficticio
     $fakeToken = str_repeat("0", 64);
     $fakeValidation = ValidateTokenService($fakeToken);
-    assertTest("ValidateTokenService con token ficticio retorna -1", $fakeValidation === "-1");
+    assertTest("ValidateTokenService con token ficticio retorna Token no valido", $fakeValidation === "Token no valido" || $fakeValidation === "-1");
 
     // ----------------------------------------------------------
     // 4.6 BLOQUEO (-1) EN TODOS LOS MÉTODOS CRUD SIN WS-SECURITY

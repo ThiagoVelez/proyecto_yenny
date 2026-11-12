@@ -13,15 +13,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // PENDIENTE DE ACTIVACION: descomentar junto con las clases de app/Http/Middleware.
-        // $middleware->api(prepend: [
-        //     \App\Http\Middleware\ForzarRespuestaJson::class,
-        //     \App\Http\Middleware\RegistrarPeticionApi::class,
-        // ]);
-        //
-        // $middleware->alias([
-        //     'capacidad.token' => \App\Http\Middleware\VerificarCapacidadToken::class,
-        // ]);
+        $middleware->api(prepend: [
+            \App\Http\Middleware\ForzarRespuestaJson::class,
+        ]);
+
+        $middleware->alias([
+            'IsAdministrator'      => \App\Http\Middleware\IsAdministrator::class,
+            'CanManageCharges'     => \App\Http\Middleware\CanManageCharges::class,
+            'CanProcessPayments'   => \App\Http\Middleware\CanProcessPayments::class,
+            'CanViewRentals'       => \App\Http\Middleware\CanViewRentals::class,
+            'is.admin'             => \App\Http\Middleware\IsAdministrator::class,
+            'can.manage.charges'   => \App\Http\Middleware\CanManageCharges::class,
+            'can.process.payments' => \App\Http\Middleware\CanProcessPayments::class,
+            'can.view.rentals'     => \App\Http\Middleware\CanViewRentals::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

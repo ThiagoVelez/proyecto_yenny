@@ -7,48 +7,63 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - Autenticación con Sanctum
+| API Routes - Autenticacion Publica
 |--------------------------------------------------------------------------
 |
-| Ruta publica para obtener un token Bearer.
-| Las rutas protegidas requieren el header Authorization: Bearer TOKEN.
+| Endpoint publico para validar credenciales y generar tokens.
 |
 */
 
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
-});
-
 /*
 |--------------------------------------------------------------------------
-| API Routes - Corte 2: Microservicio de Cobros y Penalidades
+| API Routes Protegidas (Exigen Token Bearer y Roles por Middleware)
 |--------------------------------------------------------------------------
 |
-| Endpoints RESTful para la gestión de cobros derivados de alquileres
-| validados mediante el servicio SOAP, y registro de pagos asociados.
+| Todas las rutas (excepto login) exigen token Bearer (auth:sanctum).
+| Se asignan los middlewares correspondientes segun el perfil y permisos:
+| - IsAdministrator (Admin: todos los metodos)
+| - CanManageCharges (Operador de Recepcion: generarCobro, consultarCobro, consultarCobrosPorAlquiler)
+| - CanProcessPayments (Cajero: registrarPago, consultarCobro, consultarPagosPorCobro)
+| - CanViewRentals (Cliente: consultarCobro, consultarCobrosPorAlquiler, consultarPagosPorCobro)
 |
 */
 
-// Endpoints de Cobros
-Route::prefix('cobros')->group(function () {
-    // POST /api/cobros: Generar un nuevo cobro para un alquiler (valida en SOAP)
-    Route::post('/', [CobroController::class, 'store'])->name('cobros.store');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-    // GET /api/cobros/{id}: Consultar el detalle de un cobro específico
-    Route::get('/{id}', [CobroController::class, 'show'])->whereNumber('id')->name('cobros.show');
+    // Endpoints de Cobros
+    Route::prefix('cobros')->group(function () {
+        // POST /api/cobros: generarCobro (Admin y Operador de Recepcion)
+        Route::post('/', [CobroController::class, 'store'])
+            ->middleware('CanManageCharges')
+            ->name('cobros.store');
 
-    // GET /api/cobros/alquiler/{idAlquiler}: Obtener cobro o historial de cobros de un alquiler
-    Route::get('/alquiler/{idAlquiler}', [CobroController::class, 'byAlquiler'])->whereNumber('idAlquiler')->name('cobros.byAlquiler');
-});
+        // GET /api/cobros/{id}: consultarCobro (Accesible por todos los roles autenticados)
+        Route::get('/{id}', [CobroController::class, 'show'])
+            ->whereNumber('id')
+            ->name('cobros.show');
 
-// Endpoints de Pagos
-Route::prefix('pagos')->group(function () {
-    // POST /api/pagos: Registrar el pago de un cobro existente
-    Route::post('/', [PagoController::class, 'store'])->name('pagos.store');
+        // GET /api/cobros/alquiler/{idAlquiler}: consultarCobrosPorAlquiler (Admin, Operador, Cliente)
+        Route::get('/alquiler/{idAlquiler}', [CobroController::class, 'byAlquiler'])
+            ->whereNumber('idAlquiler')
+            ->middleware('CanViewRentals')
+            ->name('cobros.byAlquiler');
+    });
 
-    // GET /api/pagos/cobro/{idCobro}: Consultar pagos realizados sobre un cobro determinado
-    Route::get('/cobro/{idCobro}', [PagoController::class, 'byCobro'])->whereNumber('idCobro')->name('pagos.byCobro');
+    // Endpoints de Pagos
+    Route::prefix('pagos')->group(function () {
+        // POST /api/pagos: registrarPago (Admin y Cajero)
+        Route::post('/', [PagoController::class, 'store'])
+            ->middleware('CanProcessPayments')
+            ->name('pagos.store');
+
+        // GET /api/pagos/cobro/{idCobro}: consultarPagosPorCobro (Admin, Cajero, Cliente)
+        Route::get('/cobro/{idCobro}', [PagoController::class, 'byCobro'])
+            ->whereNumber('idCobro')
+            ->middleware('CanProcessPayments')
+            ->name('pagos.byCobro');
+    });
 });

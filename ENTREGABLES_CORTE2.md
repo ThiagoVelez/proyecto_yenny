@@ -200,4 +200,45 @@ php artisan serve --port=8001
   cd laravel
   php artisan test
   ```
-  La suite ejecutará 11 pruebas de integración y validación con aserciones automáticas al 100%.
+  La suite ejecutará todas las pruebas de integración, autenticación y seguridad con aserciones automáticas al 100%.
+
+---
+
+## 7. Autenticación, Gestión de Roles y Middlewares Personalizados
+
+El sistema implementa control de acceso basado en roles (RBAC) mediante middlewares personalizados en Laravel y validación de tokens Bearer (`auth:sanctum`), así como interoperabilidad con el servidor SOAP.
+
+### Matriz de Perfiles y Permisos
+
+| Perfil | Middleware Asignado | Métodos REST Permitidos | Método SOAP Permitido |
+|---|---|---|---|
+| **Administrador** | `IsAdministrator` | Todos los métodos (`login`, `generarCobro`, `consultarCobro`, `consultarCobrosPorAlquiler`, `registrarPago`, `consultarPagosPorCobro`) | `consultarAlquileres` |
+| **Operador de Recepción** | `CanManageCharges` | `login`, `generarCobro`, `consultarCobro`, `consultarCobrosPorAlquiler` | `consultarAlquileres` |
+| **Cajero** | `CanProcessPayments` | `login`, `consultarCobro`, `registrarPago`, `consultarPagosPorCobro` | Ninguno |
+| **Cliente** | `CanViewRentals` | `login`, `consultarCobro`, `consultarCobrosPorAlquiler`, `consultarPagosPorCobro` | `consultarAlquileres` |
+
+### Códigos de Respuesta y Manejo de Errores
+
+1. **Validación de Token (401 Unauthorized):**
+   - Todas las rutas (excepto `login`) exigen el token Bearer en el encabezado `Authorization: Bearer <token>`.
+   - Si no se envía o es inválido, el sistema responde código HTTP 401 con respuesta JSON estructurada.
+
+2. **Validación por Middleware (403 Forbidden):**
+   - Cada middleware inspecciona manualmente el rol del usuario autenticado (`$request->user()->role`).
+   - Si el rol no cuenta con permisos para ejecutar la acción solicitada, la petición se aborta antes de alcanzar el controlador o el servicio SOAP, retornando código HTTP 403 con la siguiente estructura exacta:
+   ```json
+   {
+     "error": "Permisos insuficientes para ejecutar este método"
+   }
+   ```
+
+### Usuarios de Prueba Sembrados en Base de Datos
+
+| Usuario / Correo | Contraseña | Rol Asignado | Propósito de Prueba |
+|---|---|---|---|
+| `admin@example.test` | `ClaveDemo123!` | `admin` | Validación de acceso total (REST y SOAP) |
+| `operador@example.test` | `ClaveDemo123!` | `operador_recepcion` | Gestión de cobros y consulta de alquileres |
+| `cajero@example.test` | `ClaveDemo123!` | `cajero` | Registro de pagos y consultas de cobros/pagos |
+| `cliente@example.test` | `ClaveDemo123!` | `cliente` | Consulta de alquileres, cobros y pagos |
+| `estudiante@example.test` | `ClaveDemo123!` | `admin` | Usuario administrador de demostración |
+
